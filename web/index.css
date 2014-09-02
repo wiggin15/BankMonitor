@@ -1,0 +1,56 @@
+body, html {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+#summary, #selector {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+table.summary th {
+	font-weight: normal;
+}
+
+table.summary th:first-child {
+	text-align: left;
+}
+
+table.summary tr td {
+	padding-right: 30px;
+	text-align: right;
+	white-space: nowrap;
+}
+
+table.summary tr td:first-child {
+	padding-right: 40px;
+	text-align: left;
+}
+
+.arrow-right {
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+
+	border-left: 5px solid black;
+	display: inline-block;
+}
+
+.arrow-left {
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+
+	border-right:5px solid black;
+	display: inline-block;
+}
+
+.arrow-left-disabled {
+	border-right:5px solid gray;
+}
+
+label {
+	padding-right: 10px;
+}
