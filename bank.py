@@ -38,14 +38,14 @@ def get_bank_value(bank_data, bank_code, print_name=None):
 	val = val_matchobj.group(1)
 	val = float(val.replace(",", ""))
 	if print_name is not None:
-		print(print_name + ":", format(val, "10,.2f"))
+		print("{}: {:10,.2f}".format(print_name, val))
 	return val
 
 def get_card_value(card_data, card_code, print_name=None):
 	val = re.search(CARD_VALUE_RE % card_code, card_data).group(1)
 	val = float(val.replace(",", ""))
 	if print_name is not None:
-		print(print_name + ":", format(val, "9,.2f"))
+		print("{}: {:9,.2f}".format(print_name, val))
 	return val
 
 def get_bank_values():
@@ -62,7 +62,7 @@ def get_bank_values():
 	NIA = re.search("<td class=\"TITLE\" nowrap>\s*([0-9,.]+)\s*</td>", kranot_html.text)
 	NIA = NIA.group(1)
 	NIA = float(NIA.replace(",", ""))
-	print("NIA:", format(NIA, "9,.2f"))
+	print("NIA: {:9,.2f}".format(NIA))
 
 	CAR = get_bank_value(bank_data.text, "200", "CAR")
 
@@ -85,11 +85,11 @@ def main():
 
 	bank_total = sum(bank_values)
 	print()
-	print("Total Bank: %s" % (format(bank_total, "10,.2f"),))
+	print("Total Bank: {:10,.2f}".format(bank_total))
 	print()
-	print("Card: %s (next: %s)" % (format(card_total, ",.2f"), format(card_next, ",.2f")))
+	print("Card: {:,.2f} (next: {:,.2f})".format(card_total, card_next))
 	print()
-	print("Total: %s" % (format(bank_total - card_total, "10,.2f"),))
+	print("Total: {:10,.2f}".format(bank_total - card_total))
 	print()
 
 	return bank_values + [0-card_total]
