@@ -48,10 +48,8 @@ def csv_enumerator(filename, show_peaks=False):
 			values = line.strip().split(",")
 			yield OrderedDict(zip(titles, values))
 
-def get_json(show_peaks, fake_data, **kwargs):
+def get_json(show_peaks, **kwargs):
 	filename = get_path()
-	if fake_data == "1":
-		filename = os.path.join(os.path.dirname(__file__), "fake_bank.csv")
 	csv_enum = csv_enumerator(filename, show_peaks == "1")
 	what_to_show = [key[len("show_"):] for key, val in kwargs.items()
 	                if key.startswith("show_") and val == "1"]
@@ -114,8 +112,8 @@ class Root(object):
 		return json.dumps(dict(aaData=aaData))
 
 	@cherrypy.expose
-	def jsondata(self, show_peaks, fake_data, **kwargs):
-		return get_json(show_peaks, fake_data, **kwargs)
+	def jsondata(self, show_peaks, **kwargs):
+		return get_json(show_peaks, **kwargs)
 
 	@cherrypy.expose
 	def goback_from_date(self, date):

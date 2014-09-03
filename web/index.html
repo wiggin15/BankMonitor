@@ -56,7 +56,6 @@ function replot()
 	});
 	var str = "/jsondata?" +
 	    "show_peaks=" + (document.location.search.indexOf("show_peaks=1") != -1 ? 1 : 0) +
-		"&fake_data=" + (document.location.search.indexOf("fake_data=1") != -1 ? 1 : 0) +
 		querystring_show;
     plot_highstock(str);
 }
