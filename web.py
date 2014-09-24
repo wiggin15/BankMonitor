@@ -1,4 +1,4 @@
-import cherrypy
+from flask import Flask, render_template, jsonify, request
 import os
 import sys
 
@@ -8,6 +8,8 @@ from collections import OrderedDict
 
 IP_ADDR = "127.0.0.1"
 PORT = 7070
+
+app = Flask(__name__, template_folder="web", static_folder="web")
 
 def get_path():
 	if sys.platform == "win32":
@@ -48,10 +50,12 @@ def csv_enumerator(filename, show_peaks=False):
 			values = line.strip().split(",")
 			yield OrderedDict(zip(titles, values))
 
-def get_json(show_peaks, **kwargs):
+@app.route("/jsondata")
+def get_json():
+	show_peaks = request.args.get('show_peaks')
 	filename = get_path()
 	csv_enum = csv_enumerator(filename, show_peaks == "1")
-	what_to_show = [key[len("show_"):] for key, val in kwargs.items()
+	what_to_show = [key[len("show_"):] for key, val in request.args.items()
 	                if key.startswith("show_") and val == "1"]
 	res = dict([(key, list()) for key in what_to_show])
 
@@ -79,11 +83,13 @@ def get_titles():
 	keys.append("Total")
 	return keys
 
-def get_table(go_back):
+@app.route("/table_data")
+def get_table():
+	go_back = int(request.args.get('go_back'))
 	lines = list(csv_enumerator(get_path()))[-2-go_back:]
 	prev = lines[0]
 	cur = lines[1]
-	aaData = []
+	data = []
 	for key in get_titles():
 		if key == "Date":
 			a = cur[key]
@@ -97,54 +103,26 @@ def get_table(go_back):
 			a = "%.2f" % (float(cur[key]))
 			b = "%.2f" % (float(prev[key]))
 			d = "%.2f" % (float(cur[key]) - float(prev[key]))
-		aaData.append([key, a, b, d])
-	return aaData
+		data.append([key, a, b, d])
+	return json.dumps(dict(data=data))
 
-class Root(object):
-	@cherrypy.expose
-	def index(self, **kwargs):
-		index_path = os.path.join(os.path.dirname(__file__), "web", "index.html")
-		return open(index_path, "r").read()
+@app.route("/goback_from_date")
+def goback_from_date():
+	date = request.args.get('date')
+	date_time = datetime.datetime.fromtimestamp(float(date) / 1000)
+	lines = list(csv_enumerator(get_path()))
+	go_back_and_dates = [(i, abs(timestr_to_datetime(line["Date"]) - date_time))
+	                     for i, line in enumerate(reversed(lines))]
+	go_back_and_dates.sort(key=lambda x: x[1])
+	return str(go_back_and_dates[0][0])
 
-	@cherrypy.expose
-	def table_data(self, go_back, **kwargs):
-		aaData = get_table(int(go_back))
-		return json.dumps(dict(aaData=aaData))
+@app.route('/titles')
+def titles():
+	return json.dumps(get_titles())
 
-	@cherrypy.expose
-	def jsondata(self, show_peaks, **kwargs):
-		return get_json(show_peaks, **kwargs)
-
-	@cherrypy.expose
-	def goback_from_date(self, date):
-		date_time = datetime.datetime.fromtimestamp(float(date) / 1000)
-		lines = list(csv_enumerator(get_path()))
-		go_back_and_dates = [(i, abs(timestr_to_datetime(line["Date"]) - date_time))
-		                     for i, line in enumerate(reversed(lines))]
-		go_back_and_dates.sort(key=lambda x: x[1])
-		return [str(go_back_and_dates[0][0])]
-
-	@cherrypy.expose
-	def titles(self):
-		return json.dumps(get_titles())
-
-def main():
-	current_dir = os.path.dirname(os.path.abspath(__file__))
-	conf = {
-		"/js":
-			{"tools.staticdir.on": True,
-			 "tools.staticdir.dir": os.path.join(current_dir, "web")
-			},
-		"/favicon.ico":
-            {"tools.staticfile.on": True,
-              "tools.staticfile.filename": os.path.join(current_dir, "web", "favicon.ico")
-            }
-    }
-	cherrypy.config.update({'server.socket_host': IP_ADDR,
-		'server.socket_port': PORT,
-		'environment': 'production',
-		'log.screen': True})
-	cherrypy.quickstart(Root(), '/', config=conf)
+@app.route("/")
+def index():
+	return render_template("index.html")
 
 if __name__ == '__main__':
-	main()
+    app.run(host=IP_ADDR, port=PORT, debug=True, use_reloader=False)

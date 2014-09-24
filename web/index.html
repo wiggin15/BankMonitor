@@ -4,11 +4,12 @@
 <head>
 <title>Bank data</title>
 
-<script src="js/jquery.min.js"></script>
-<script src="js/jquery.dataTables.min.js"></script>
-<script src="js/highstock.js"></script>
-<script src="js/chart_options.js"></script>
-<link rel="stylesheet" type="text/css" href="js/index.css" />
+<link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
+<script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+<script src="{{url_for('static', filename='jquery.dataTables.min.js')}}"></script>
+<script src="{{url_for('static', filename='highstock.js')}}"></script>
+<script src="{{url_for('static', filename='chart_options.js')}}"></script>
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='index.css')}}" />
 
 <script type="text/javascript">
 var summary_go_back = 0;

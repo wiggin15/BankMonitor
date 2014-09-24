@@ -3,7 +3,7 @@ from the web every day and making neat graphs.
 
 ###Usage
 The usage is a little complicated because the scripts were designed for my own use.
-* **dependencies**: The scripts need *Cherrypy* and *requests* to work
+* **dependencies**: The scripts need *Flask* and *requests* to work
 * **data collection**: You will pretty much have to rewrite bank.py for your needs. The current script collects data
 from _bankotsar.co.il_ and _cal-online.co.il_, but the other scripts only need `bank.main` to return a list of values
 that represent the different assets you own. For example, positive values for your savings account and stocks, and
