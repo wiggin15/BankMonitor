@@ -6,7 +6,6 @@
 
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.dataTables.min.js"></script>
-<script src="js/jquery.dataTables.reloadAjax.js"></script>
 <script src="js/highstock.js"></script>
 <script src="js/chart_options.js"></script>
 <link rel="stylesheet" type="text/css" href="js/index.css" />
@@ -37,13 +36,13 @@ function chart_click(e) {
 }
 
 function create_summary_table() {
-	$('#summary').dataTable( {
-		"bProcessing": false,
-		"bFilter": false,
-		"bPaginate": false,
-		"bInfo": false,
-		"bSort": false,
-		"sAjaxSource": '/table_data?go_back=' + summary_go_back
+	$('#summary').DataTable( {
+		"processing": false,
+		"filter": false,
+		"paginate": false,
+		"info": false,
+		"sort": false,
+		"ajax": '/table_data?go_back=' + summary_go_back
 	} );
 }
 
@@ -74,7 +73,7 @@ function create_radio_boxes() {
 }
 
 function reload_summary() {
-	$('#summary').dataTable().fnReloadAjax("/table_data?go_back=" + summary_go_back);
+	$('#summary').DataTable().ajax.url("/table_data?go_back=" + summary_go_back).load();
 
 	if (summary_go_back == 0) {
 		$('#left-arrow').attr('class', 'arrow-left arrow-left-disabled');
