@@ -124,5 +124,8 @@ def titles():
 def index():
 	return render_template("index.html")
 
-if __name__ == '__main__':
+def main():
     app.run(host=IP_ADDR, port=PORT, debug=True, use_reloader=False)
+
+if __name__ == '__main__':
+	main()
