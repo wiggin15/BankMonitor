@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from flask import Flask, render_template, jsonify, request
 import os
 import sys
@@ -5,17 +8,12 @@ import sys
 import json
 import datetime
 from collections import OrderedDict
-
-IP_ADDR = "127.0.0.1"
-PORT = 7070
+from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, WEBSERVER_FILE_PATH
 
 app = Flask(__name__, template_folder="web", static_folder="web")
 
 def get_path():
-	if sys.platform == "win32":
-		return os.path.expandvars(r"%userprofile%\Google Drive\logs\bank.csv")
-	elif sys.platform == "darwin":
-		return os.path.expanduser(r"~/Google Drive/logs/bank.csv")
+	return WEBSERVER_FILE_PATH
 
 def get_timestamp(date_str):
 	# highcharts count in milliseconds since epoch
@@ -125,7 +123,7 @@ def index():
 	return render_template("index.html")
 
 def main():
-    app.run(host=IP_ADDR, port=PORT, debug=True, use_reloader=False)
+    app.run(host=WEBSERVER_IP_ADDR, port=WEBSERVER_PORT, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
 	main()
