@@ -92,7 +92,7 @@ def get_table():
     go_back = int(request.args.get('go_back'))
     lines = list(csv_enumerator(get_path()))[-2-go_back:]
     prev = lines[0]
-    cur = lines[1]
+    cur = lines[1] if len(lines) > 1 else lines[0]
     data = []
     for key in get_titles():
         if key == "Date":
@@ -132,8 +132,22 @@ def index():
     return render_template("index.html")
 
 
+def test_read():
+    """ dry read to make sure csv file exists and has at least one line of data """
+    try:
+        next(csv_enumerator(get_path()))
+    except StopIteration:
+        print("ERROR: No data in CSV file")
+        return False
+    except IOError:
+        print("ERROR: CSV file not found")
+        return False
+    return True
+
+
 def main():
-    app.run(host=WEBSERVER_IP_ADDR, port=WEBSERVER_PORT, debug=True, use_reloader=False)
+    if test_read():
+        app.run(host=WEBSERVER_IP_ADDR, port=WEBSERVER_PORT, debug=True, use_reloader=False)
 
 
 if __name__ == '__main__':
