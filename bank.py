@@ -4,8 +4,8 @@
 from __future__ import print_function
 import re
 import requests
-from config import get_config_value, get_config_bool
-
+from config import get_config_value
+from collections import OrderedDict
 
 
 def format_value(value_text, print_name=None):
@@ -14,7 +14,8 @@ def format_value(value_text, print_name=None):
 		print("{}: {:10,.2f}".format(print_name, val))
 	return val
 
-class BankBase(object):
+
+class AssetBase(object):
 	def __init__(self, username, password):
 		self._username = username
 		self._password = password
@@ -23,21 +24,11 @@ class BankBase(object):
 	def _establish_session(self, username, password):
 		raise NotImplementedError()
 
-	def get_checking_balance(self):
-		raise NotImplementedError()
-
-	def get_deposit_balance(self):
-		raise NotImplementedError()
-
-	def get_holdings_balance(self):
-		raise NotImplementedError()
-
-	def get_car_loan_balance(self):
+	def get_values(self):
 		raise NotImplementedError()
 
 
-
-class BankOtsar(BankBase):
+class BankOtsar(AssetBase):
 	LOGIN_URL = "https://www.fibi-online.co.il/web/otsar"
 	HOME_URL = "https://www.fibi-online.co.il/web/TotalPosition.do?SUGBAKA=811&I-OSH-FLAG=1&I-PACHAK-FLAG=1&I-HODAOT-FLAG=1"
 	KRANOT_URL = "https://www.fibi-online.co.il/web/Processing?SUGBAKA=021"
@@ -49,33 +40,33 @@ class BankOtsar(BankBase):
 		s.post(self.LOGIN_URL, data=post_data)
 		return s
 
-	def __get_bank_value(self, bank_data, bank_code, print_name=None):
+	def _get_bank_value(self, bank_data, bank_code, print_name=None):
 		val_matchobj = re.search(self.VALUE_RE % (bank_code,), bank_data)
 		if val_matchobj is None:
 			return 0
 		val = val_matchobj.group(1)
 		return format_value(val, print_name)
 
-	def __get_bank_data(self):
-		return self._session.get(self.HOME_URL).text
+	def _get_values_from_main_page(self):
+		main_page_html = self._session.get(self.HOME_URL).text
+		bank = self._get_bank_value(main_page_html, "077", "OSH")
+		deposit = self._get_bank_value(main_page_html, "101", "PIK")
+		car = self._get_bank_value(main_page_html, "200", "CAR")
+		return bank, deposit, car
 
-	def get_checking_balance(self):
-		return self.__get_bank_value(self.__get_bank_data(), "077", "OSH")
-
-	def get_deposit_balance(self):
-		return self.__get_bank_value(self.__get_bank_data(), "101", "PIK")
-
-	def get_holdings_balance(self):
-		kranot_html = self._session.get(self.KRANOT_URL).text
-		NIA = re.search("<td class=\"TITLE\" nowrap>\s*([0-9,.]+)\s*</td>", kranot_html)
+	def _get_stock_value(self):
+		stock_html = self._session.get(self.KRANOT_URL).text
+		NIA = re.search("<td class=\"TITLE\" nowrap>\s*([0-9,.]+)\s*</td>", stock_html)
 		NIA = NIA.group(1)
 		return format_value(NIA, 'NIA')
 
-	def get_car_loan_balance(self):
-		return self.__get_bank_value(self.__get_bank_data(), "200", "CAR")
+	def get_values(self):
+		bank, deposit, car = self._get_values_from_main_page()
+		stock = self._get_stock_value()
+		return OrderedDict([("Bank", bank), ("Deposit", deposit), ("Stock", stock), ("Car", car)])
 
 
-class BankLeumi(BankBase):
+class BankLeumi(AssetBase):
 	LOGIN_URL = "https://hb2.bankleumi.co.il/H/Login.html"
 	LOGIN_POST_URL = "https://hb2.bankleumi.co.il/InternalSite/Validate.asp"
 	HOME_URL = "https://hb2.bankleumi.co.il/uniquesig0/eBanking/Accounts/PremiumSummaryNew.aspx?p=1"
@@ -90,34 +81,24 @@ class BankLeumi(BankBase):
 		s.post(self.LOGIN_POST_URL, data=post_data)
 		return s
 
-	def get_checking_balance(self):
+	def _get_checking_balance(self):
 		summery_page = self._session.get(self.HOME_URL).text
 		val_matchobj = re.search(self.CHECKING_RE, summery_page)
 		val = val_matchobj.group(1).decode('base64')[4:]
 		return format_value(val, 'checking')
 
-	def get_holdings_balance(self):
+	def _get_holdings_balance(self):
 		summery_page = self._session.get(self.HOLDINGS_URL).text
 		val_matchobj = re.search(self.HOLDINGS_RE, summery_page)
 		val = val_matchobj.group(1)
 		return format_value(val, 'holdings')
-	
+
+	def get_values(self):
+		return OrderedDict([("Checking", self._get_checking_balance()),
+						    ("Holdings", self._get_holdings_balance())])
 
 
-class CardBase(object):
-	def __init__(self, username, password):
-		self._username = username
-		self._password = password
-		self._session = self._establish_session(username, password)
-
-	def _establish_session(self, username, password):
-		raise NotImplementedError()
-
-	def get_balance(self):
-		raise NotImplementedError()
-
-
-class CardCal(CardBase):
+class CardCal(AssetBase):
 	CARD_LOGIN_URL = "https://services.cal-online.co.il/card-holders/Screens/AccountManagement/Login.aspx"
 	CARD_HOME_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/HomePage.aspx"
 	CARD_DETAIL_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/CardDetails.aspx"
@@ -129,22 +110,26 @@ class CardCal(CardBase):
 		s.post(self.CARD_LOGIN_URL, data=post_data)
 		return s
 
-	def __get_card_value(self, card_data, card_code, print_name=None):
+	def _get_card_value(self, card_data, card_code, print_name=None):
 		val = re.search(self.CARD_VALUE_RE % (card_code,), card_data).group(1)
-		val = float(val.replace(",", ""))
 		return format_value(val, print_name)
 
-	def get_balance(self):
+	def _get_balance(self, card_code):
 		home_data = self._session.get(self.CARD_HOME_URL)
 		card_details_queries = re.findall("(\?cardUniqueID=\d+)", home_data.text)
 		card_datas = [self._session.get(self.CARD_DETAIL_URL + card_details_query)
 					  for card_details_query in card_details_queries]
-		card_next = sum(get_card_value(card_data.text, "lblNextDebitSum") for card_data in card_datas)
-		card_total = sum(get_card_value(card_data.text, "lblTotalRemainingSum") for card_data in card_datas)
-		return card_next, card_total
+		return sum(self._get_card_value(card_data.text, card_code) for card_data in card_datas)
+
+	def get_next(self):
+		return self._get_balance("lblNextDebitSum")
+
+	def get_values(self):
+		card_total = self._get_balance("lblTotalRemainingSum")
+		return OrderedDict([("Credit", 0-card_total)])
 
 
-class CardLeumi(CardBase):
+class CardLeumi(AssetBase):
 	TOTAL_RE = ur'<pCreditCardNeg>(.+?)</pCreditCardNeg>'
 
 	def __init__(self, username, password):
@@ -154,61 +139,42 @@ class CardLeumi(CardBase):
 		self._bank_instance = BankLeumi(username, password)
 		return self._bank_instance._session
 
-	def __get_card_value(self, card_data, card_code, print_name=None):
-		val = re.search(self.CARD_VALUE_RE % (card_code,), card_data).group(1)
-		val = float(val.replace(",", ""))
-		return format_value(val, print_name)
+	def get_next(self):
+		return 0
 
-	def get_balance(self):
+	def get_values(self):
 		summery_page = self._session.get(BankLeumi.HOME_URL).text
 		val_matchobj = re.search(self.TOTAL_RE, summery_page)
 		if val_matchobj is None:
-			return 0, 0
+			return OrderedDict([("Credit", 0)])
 		val = val_matchobj.group(1).decode('base64')[5:]
-		return 0, format_value(val, 'credit')
+		credit = format_value(val, 'credit')
+		return OrderedDict([("Credit", 0-credit)])
+
+
+def get_asset_checker(asset_type):
+	class_name = get_config_value(asset_type, "type")
+	user = get_config_value(asset_type, "user")
+	password = get_config_value(asset_type, "password")
+	if not user or not password:
+		raise Exception("{} credentials missing".format(asset_type.capitalize()))
+	return globals()[class_name](user, password)
 
 
 def main():
-	all_values = []
-	all_names = []
+	all_values = OrderedDict()
 
-	bank_class_name = get_config_value("bank", "type")
-	bank_user = get_config_value("bank", "user")
-	if not bank_user:
-		raise Exception("You must provide a user name for the bank site")
-	bank_password = get_config_value("bank", "password")
-	if not bank_password:
-		raise Exception("You must provide a password for the bank site")
-	
-	bank_checker = globals()[bank_class_name](bank_user, bank_password)
-	
-	if get_config_bool("bank", "get_checking_balance"):
-		all_values.append(bank_checker.get_checking_balance())
-		all_names.append("Checking")
-	if get_config_bool("bank", "get_deposit_balance"):
-		all_values.append(bank_checker.get_deposit_balance())
-		all_names.append("Deposit")
-	if get_config_bool("bank", "get_holdings_balance"):
-		all_values.append(bank_checker.get_holdings_balance())
-		all_names.append("Holdings")
-	if get_config_bool("bank", "get_car_loan_balance"):
-		all_values.append(bank_checker.get_car_loan_balance())
-		all_names.append("Car")
-	
-	bank_total = sum(all_values)
-	
-	card_class_name = get_config_value("card", "type")
-	card_user = get_config_value("card", "user")
-	if not card_user:
-		raise Exception("You must provide a user name for the credit card site")
-	card_password = get_config_value("card", "password")
-	if not card_password:
-		raise Exception("You must provide a password for the credit card site")
-	
-	card_checker = globals()[card_class_name](card_user, card_password)
-	card_next, card_total = card_checker.get_balance()
-	all_values.append(0-card_total)
-	all_names.append("Credit")
+	bank_checker = get_asset_checker("bank")
+	bank_values = bank_checker.get_values()
+	all_values.update(bank_values)
+
+	card_checker = get_asset_checker("card")
+	card_values = card_checker.get_values()
+	all_values.update(card_values)
+
+	bank_total = sum(bank_values.values())
+	card_total = abs(sum(card_values.values()))
+	card_next = card_checker.get_next()
 
 	print()
 	print("Total Bank: {:10,.2f}".format(bank_total))
@@ -218,7 +184,8 @@ def main():
 	print("Total: {:10,.2f}".format(bank_total - card_total))
 	print()
 
-	return all_values, all_names
+	return all_values
+
 
 if __name__ == '__main__':
 	main()
