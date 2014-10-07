@@ -1,11 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except ImportError:     # Python 3.x
+    from configparser import ConfigParser
 
 CONFIG_FILE_PATH = "config.ini"
 
-_config = ConfigParser.ConfigParser()
+_config = ConfigParser()
 _config.read(CONFIG_FILE_PATH)
 
 def get_config_value(section, option):

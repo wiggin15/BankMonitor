@@ -17,7 +17,7 @@ def update():
 	new_content = ','.join([str(x) for x in values.values()]) + "\r\n"
 	if not os.path.isfile(WEBSERVER_FILE_PATH):
 		new_content = ','.join(values.keys()) + "\r\n" + new_content
-	new_content.encode("ascii")
+	new_content = new_content.encode("ascii")
 	with open(WEBSERVER_FILE_PATH, "ab+") as f:
 		f.write(new_content)
 

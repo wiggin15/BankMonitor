@@ -70,9 +70,9 @@ class BankLeumi(AssetBase):
 	LOGIN_URL = "https://hb2.bankleumi.co.il/H/Login.html"
 	LOGIN_POST_URL = "https://hb2.bankleumi.co.il/InternalSite/Validate.asp"
 	HOME_URL = "https://hb2.bankleumi.co.il/uniquesig0/eBanking/Accounts/PremiumSummaryNew.aspx?p=1"
-	CHECKING_RE = ur'<lblCurrentBalanceVal>(.+?)</lblCurrentBalanceVal>'
+	CHECKING_RE = '<lblCurrentBalanceVal>(.+?)</lblCurrentBalanceVal>'
 	HOLDINGS_URL = "https://hb2.bankleumi.co.il/uniquesig0/Trade/net/trade/portf/portfviews3.aspx"
-	HOLDINGS_RE = ur'<td nowrap="nowrap" class="positive">&#8362 (.+?)</td>'
+	HOLDINGS_RE = '<td nowrap="nowrap" class="positive">&#8362 (.+?)</td>'
 
 	def _establish_session(self, username, password):
 		s = requests.Session()
@@ -130,7 +130,7 @@ class CardCal(AssetBase):
 
 
 class CardLeumi(AssetBase):
-	TOTAL_RE = ur'<pCreditCardNeg>(.+?)</pCreditCardNeg>'
+	TOTAL_RE = '<pCreditCardNeg>(.+?)</pCreditCardNeg>'
 
 	def __init__(self, username, password):
 		super(CardLeumi, self).__init__(username, password)
@@ -189,4 +189,7 @@ def main():
 
 if __name__ == '__main__':
 	main()
-	input()
+	try:
+		raw_input()
+	except NameError:		# Python 3.x
+		input()
