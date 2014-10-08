@@ -10,10 +10,6 @@ from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, WEBSERVER_FILE_PATH
 app = Flask(__name__, template_folder="web", static_folder="web")
 
 
-def get_path():
-    return WEBSERVER_FILE_PATH
-
-
 def get_timestamp(date_str):
     # highcharts count in milliseconds since epoch
     epoch = datetime.datetime.utcfromtimestamp(0)
@@ -39,8 +35,8 @@ def insert_empty_values(res, last_date, date):
         last_date += datetime.timedelta(days=1)
 
 
-def csv_enumerator(filename, show_peaks=False):
-    with open(filename, "r") as fd:
+def csv_enumerator(show_peaks=False):
+    with open(WEBSERVER_FILE_PATH, "r") as fd:
         titles = fd.readline().strip().split(",")
         for line in fd.readlines():
             if line.startswith("#"):
@@ -54,8 +50,7 @@ def csv_enumerator(filename, show_peaks=False):
 @app.route("/jsondata")
 def get_json():
     show_peaks = request.args.get('show_peaks')
-    filename = get_path()
-    csv_enum = csv_enumerator(filename, show_peaks == "1")
+    csv_enum = csv_enumerator(show_peaks == "1")
     what_to_show = [key[len("show_"):] for key, val in request.args.items()
                     if key.startswith("show_") and val == "1"]
     res = dict([(key, list()) for key in what_to_show])
@@ -82,7 +77,7 @@ def line_sum(line):
 
 
 def get_titles():
-    keys = list(next(csv_enumerator(get_path())).keys())
+    keys = list(next(csv_enumerator()).keys())
     keys.append("Total")
     return keys
 
@@ -90,7 +85,7 @@ def get_titles():
 @app.route("/table_data")
 def get_table():
     go_back = int(request.args.get('go_back'))
-    lines = list(csv_enumerator(get_path()))[-2-go_back:]
+    lines = list(csv_enumerator())[-2-go_back:]
     prev = lines[0]
     cur = lines[1] if len(lines) > 1 else lines[0]
     data = []
@@ -115,7 +110,7 @@ def get_table():
 def goback_from_date():
     date = request.args.get('date')
     date_time = datetime.datetime.fromtimestamp(float(date) / 1000)
-    lines = list(csv_enumerator(get_path()))
+    lines = list(csv_enumerator())
     go_back_and_dates = [(i, abs(timestr_to_datetime(line["Date"]) - date_time))
                          for i, line in enumerate(reversed(lines))]
     go_back_and_dates.sort(key=lambda x: x[1])
@@ -135,7 +130,7 @@ def index():
 def test_read():
     """ dry read to make sure csv file exists and has at least one line of data """
     try:
-        next(csv_enumerator(get_path()))
+        next(csv_enumerator())
     except StopIteration:
         print("ERROR: No data in CSV file")
         return False
