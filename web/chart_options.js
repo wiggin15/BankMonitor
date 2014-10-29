@@ -51,7 +51,8 @@ function get_options() {
 		marker : {
 			enabled : true,
 			radius : 2
-		}
+		},
+		point: {events: {}}
 	}
 }
 }

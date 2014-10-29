@@ -22,6 +22,7 @@ function plot_highstock(str) {
 			options.series[key] = $.extend({}, options.series_template);
 			options.series[key].data = data[key][1];
 			options.series[key].name = data[key][0];
+        	options.series[key].point.events.click = chart_click;
 		}
         options.chart.events.click = chart_click;
 		window.chart = new Highcharts.StockChart(options);
@@ -29,7 +30,8 @@ function plot_highstock(str) {
 }
 
 function chart_click(e) {
-	str = "/goback_from_date?date=" + e.xAxis[0].value;
+	date_value = e.hasOwnProperty("point") ? e.point.x : e.xAxis[0].value;
+	str = "/goback_from_date?date=" + date_value;
 	$.getJSON(str, function(data) {
 		summary_go_back = data;
 		reload_summary();
