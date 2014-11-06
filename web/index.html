@@ -94,14 +94,24 @@ function summary_move(i) {
 	reload_summary();
 }
 
-$(document).ready(function() {
-	create_radio_boxes();
-	create_summary_table();
-	window.setTimeout(function() {
+function layout_on_dom_change() {
+	// the checkboxes are created dynamically so they don't exist until the DOM updates
+	// also the document dimensions are not correct until then...
+	// Wait for a DOM update by polling, and then continue loading the page
+	if ($("#show_Total").length > 0) {
 		$("#show_Total").prop("checked", true);
 		replot();
 		layout();
-	}, 0);
+	}
+	else {
+		window.setTimeout(layout_on_dom_change, 10);
+	}
+}
+
+$(document).ready(function() {
+	create_radio_boxes();
+	create_summary_table();
+	layout_on_dom_change()
 });
 
 function layout() {
