@@ -35,8 +35,8 @@ def wait_until_time(hour, minute):
 def main():
     while True:
         time_str = get_config_value("general", "update_time").strip()
-        time = [int(part) for part in time_str.split(":")]
-        wait_until_time(*time)
+        update_time = [int(part) for part in time_str.split(":")]
+        wait_until_time(*update_time)
         print("-" * 20)
         print("updating", time.strftime("%d/%m/%y"))
         update()
