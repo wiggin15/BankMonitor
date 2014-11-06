@@ -6,7 +6,7 @@ import time
 import os
 import bank
 import web
-from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, WEBSERVER_FILE_PATH
+from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, CSV_FILE_PATH
 from collections import OrderedDict
 
 
@@ -16,10 +16,10 @@ def update():
     values.update(bank.main())
 
     new_content = ','.join([str(x) for x in values.values()]) + "\r\n"
-    if not os.path.isfile(WEBSERVER_FILE_PATH):
+    if not os.path.isfile(CSV_FILE_PATH):
         new_content = ','.join(values.keys()) + "\r\n" + new_content
     new_content = new_content.encode("ascii")
-    with open(WEBSERVER_FILE_PATH, "ab+") as f:
+    with open(CSV_FILE_PATH, "ab+") as f:
         f.write(new_content)
 
 

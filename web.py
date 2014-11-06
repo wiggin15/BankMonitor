@@ -5,7 +5,7 @@ from flask import Flask, render_template, request
 import json
 import datetime
 from collections import OrderedDict
-from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, WEBSERVER_FILE_PATH
+from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, CSV_FILE_PATH, get_config_value
 
 app = Flask(__name__, template_folder="web", static_folder="web")
 
@@ -36,7 +36,7 @@ def insert_empty_values(res, last_date, date):
 
 
 def csv_enumerator(show_peaks=False):
-    with open(WEBSERVER_FILE_PATH, "r") as fd:
+    with open(CSV_FILE_PATH, "r") as fd:
         titles = fd.readline().strip().split(",")
         for line in fd.readlines():
             if line.startswith("#"):
@@ -78,6 +78,9 @@ def line_sum(line):
 
 def get_titles():
     keys = list(next(csv_enumerator()).keys())
+    hide = get_config_value("webserver", "hide").strip()
+    if hide:
+        [keys.remove(asset) for asset in hide.split(",")]
     keys.append("Total")
     return keys
 

@@ -22,4 +22,4 @@ def get_config_int(section, option):
 
 WEBSERVER_IP_ADDR = get_config_value("webserver", "ip")
 WEBSERVER_PORT = get_config_int("webserver", "port")
-WEBSERVER_FILE_PATH = get_config_value("webserver", "data_file_path")
+CSV_FILE_PATH = get_config_value("general", "data_file_path")

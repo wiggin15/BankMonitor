@@ -6,6 +6,7 @@ import time
 import datetime
 import sys
 from bank_csv import update
+from config import get_config_value
 
 
 def wait_until_time(hour, minute):
@@ -33,7 +34,9 @@ def wait_until_time(hour, minute):
 
 def main():
     while True:
-        wait_until_time(20, 0)
+        time_str = get_config_value("general", "update_time").strip()
+        time = [int(part) for part in time_str.split(":")]
+        wait_until_time(*time)
         print("-" * 20)
         print("updating", time.strftime("%d/%m/%y"))
         update()
