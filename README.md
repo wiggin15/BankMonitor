@@ -1,17 +1,18 @@
 This set of scripts is used to monitor your wealth (or lack thereof), by scraping your bank and credit card details
 from the web every day and making neat graphs.
 
-###Usage
+Usage
+-----
 * **dependencies**: The scripts need *Flask* and *requests* to work
 * **configuration**: The file `config.ini` contains the configuration for the scripts.
- * Edit the bank and credit sections: set the bank and credit card sites you are using, and set the username and
- password for each.
- Currently supported types are:
-   * BankOtsar
-   * BankLeumi
-   * CardCal
-   * CardLeumi
- * Edit `data_file_path` to select the path for the csv file with the collected data.
+  * Edit the bank and credit sections: set the bank and credit card sites you are using, and set the username and
+  password for each.
+  Currently supported types are:
+     * BankOtsar
+     * BankLeumi
+     * CardCal
+     * CardLeumi
+  * Edit `data_file_path` to select the path for the csv file with the collected data.
  For example, I store the csv log on my Google Drive.
 * **run data collection**: Run `bank_routine.py` to start collection.
 This script will call `bank.main` to collect the data and store the values in the csv file, every day at 20:00.
