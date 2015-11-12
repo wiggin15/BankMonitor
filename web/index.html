@@ -59,6 +59,7 @@ function replot()
     });
     var str = "/jsondata?" +
         "show_peaks=" + (document.location.search.indexOf("show_peaks=1") != -1 ? 1 : 0) +
+        "&per_month_max=" + (document.location.search.indexOf("per_month_max=1") != -1 ? 1 : 0) +
         querystring_show;
     plot_highstock(str);
 }
