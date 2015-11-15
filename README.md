@@ -10,8 +10,9 @@ Usage
   Currently supported types are:
      * BankOtsar
      * BankLeumi
+     * BankDiscount (requires *pycrypto* dependency; 'username' should be in format '<user id>,<user code>')
      * CardCal
-     * CardLeumi
+     * CardLeumi (only if the card is issued by Bank Leumi)
   * Edit `data_file_path` to select the path for the csv file with the collected data.
  For example, I store the csv log on my Google Drive.
 * **run data collection**: Run `bank_routine.py` to start collection.
