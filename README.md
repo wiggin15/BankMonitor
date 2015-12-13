@@ -14,6 +14,7 @@ Usage
      * BankBeinleumi
      * CardCal
      * CardLeumi (only if the card is issued by Bank Leumi)
+     * CardIsracard
   * Edit `data_file_path` to select the path for the csv file with the collected data.
  For example, I store the csv log on my Google Drive.
 * **run data collection**: Run `bank_routine.py` to start collection.

@@ -4,7 +4,7 @@
 from __future__ import print_function
 from config import get_config_value
 from collections import OrderedDict
-from assets import BankLeumi, BankOtsar, CardCal, CardLeumi, BankDiscount, BankBeinleumi
+from assets import BankLeumi, BankOtsar, CardCal, CardLeumi, BankDiscount, BankBeinleumi, CardIsracard
 
 
 def get_asset_checker(asset_type):
