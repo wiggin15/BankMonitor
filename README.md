@@ -11,6 +11,7 @@ Usage
      * BankOtsar
      * BankLeumi
      * BankDiscount (requires *pycrypto* dependency; 'username' should be in format '<user id>,<user code>')
+     * BankBeinleumi
      * CardCal
      * CardLeumi (only if the card is issued by Bank Leumi)
   * Edit `data_file_path` to select the path for the csv file with the collected data.
