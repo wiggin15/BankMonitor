@@ -8,7 +8,7 @@ class BankBeinleumi(AssetBase):
     HOME_URL = "https://new.fibi-online.co.il/wps/myportal/FibiMenu/Online"
     STOCK_URL = "https://new.fibi-online.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
     LOGIN_URL = "https://new.fibi-online.co.il/LoginServices/login2.do"
-    BALANCE_PATTERN = """<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
+    BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
 
     def _establish_session(self, username, password):
         s = requests.Session()
@@ -30,8 +30,10 @@ class BankBeinleumi(AssetBase):
 
     def _get_values_from_main_page(self):
         main_html = self._session.get(self.HOME_URL).text
-        OSH = re.search(self.BALANCE_PATTERN, main_html)
-        OSH = OSH.group(1)
+        match_obj = re.search(self.BALANCE_PATTERN, main_html)
+        if match_obj is None:
+            return 0
+        OSH = match_obj.group(1)
         return format_value(OSH)
 
     def _get_stock_value(self):
