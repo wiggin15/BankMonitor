@@ -5,14 +5,14 @@ from collections import OrderedDict
 from common import AssetBase, format_value
 
 class BankBeinleumi(AssetBase):
-    HOME_URL = "https://new.fibi-online.co.il/wps/myportal/FibiMenu/Online"
-    STOCK_URL = "https://new.fibi-online.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
-    LOGIN_URL = "https://new.fibi-online.co.il/LoginServices/login2.do"
+    HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
+    STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
+    LOGIN_URL = "https://online.fibi.co.il/LoginServices/login2.do"
     BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
 
     def _establish_session(self, username, password):
         s = requests.Session()
-        s.get("https://new.fibi-online.co.il/wps/portal")
+        s.get("https://online.fibi.co.il/wps/portal")
         data = {"bankId": "FIBIPORTAL", "lang": "HE", "username": username, "password": password}
         s.post(self.LOGIN_URL, data=data)
         return s
