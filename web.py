@@ -47,9 +47,23 @@ def csv_enumerator(show_peaks=False):
             yield OrderedDict(zip(titles, values))
 
 
+def get_max_json():
+    per_month = dict()
+    for k in csv_enumerator():
+        d = k.pop("Date").split('/', 1)[-1]
+        v = sum([float(x) for x in k.values()])
+        per_month.setdefault(d, list()).append(v)
+    per_month_max = [(k, max(v)) for k, v in per_month.items()]
+    per_month_max.sort(key=lambda k: [int(x) for x in k[0].split("/")[::-1]])
+    return dict(Total=per_month_max)
+
+
 @app.route("/jsondata")
 def get_json():
     show_peaks = request.args.get('show_peaks')
+    per_month_max = request.args.get('per_month_max')
+    if per_month_max == "1":
+        return json.dumps(list(get_max_json().items()))
     csv_enum = csv_enumerator(show_peaks == "1")
     what_to_show = [key[len("show_"):] for key, val in request.args.items()
                     if key.startswith("show_") and val == "1"]
