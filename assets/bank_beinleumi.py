@@ -4,18 +4,42 @@ import requests
 from collections import OrderedDict
 from common import AssetBase, format_value
 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium import webdriver
+import time
+import os
+
 class BankBeinleumi(AssetBase):
     HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
-    LOGIN_URL = "https://online.fibi.co.il/LoginServices/login2.do"
     BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
 
+    def _wait_for_id(self, html_id):
+        indicator = EC.presence_of_element_located((By.CSS_SELECTOR, "#" + html_id))
+        WebDriverWait(self.selenium, 10).until(indicator)
+
     def _establish_session(self, username, password):
-        s = requests.Session()
-        s.get("https://online.fibi.co.il/wps/portal")
-        data = {"bankId": "FIBIPORTAL", "lang": "HE", "username": username, "password": password}
-        s.post(self.LOGIN_URL, data=data)
-        return s
+        os.environ["DISPLAY"] = ":1"
+        self.selenium = webdriver.Firefox()
+        self.selenium.get("https://online.fibi.co.il/")
+        self._wait_for_id("LoginIframeTag")
+        self.selenium.switch_to.frame(self.selenium.find_element_by_id("LoginIframeTag"))
+        self._wait_for_id("username")
+        self.selenium.find_element_by_id("username").send_keys(username)
+        self.selenium.find_element_by_id("password").send_keys(password)
+        self.selenium.find_element_by_id("form").submit()
+        time.sleep(10)
+        self.selenium.switch_to.default_content()
+
+        session = requests.Session()
+        for cookie in self.selenium.get_cookies():
+            session.cookies.set(cookie['name'], cookie['value'])
+
+        self.selenium.quit()
+
+        return session
 
     def _get_accounts(self):
         main_html = self._session.get(self.HOME_URL).text

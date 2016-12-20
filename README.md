@@ -6,15 +6,7 @@ Usage
 * **dependencies**: The scripts need *Flask* and *requests* to work
 * **configuration**: The file `config.ini` contains the configuration for the scripts.
   * Edit the bank and credit sections: set the bank and credit card sites you are using, and set the username and
-  password for each.
-  Currently supported types are:
-     * BankOtsar
-     * BankLeumi
-     * BankDiscount (requires *pycrypto* dependency; 'username' should be in format '\<user id\>,\<user code\>')
-     * BankBeinleumi
-     * CardCal
-     * CardLeumi (only if the card is issued by Bank Leumi)
-     * CardIsracard ('username' should be in format '\<user id\>,\<user name\>')
+  password for each. See assets.md for a list of supported banks and credit cards.
   * Edit `data_file_path` to select the path for the csv file with the collected data.
  For example, I store the csv log on my Google Drive.
 * **run data collection**: Run `bank_routine.py` to start collection.
