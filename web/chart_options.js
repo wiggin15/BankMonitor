@@ -1,58 +1,60 @@
 function get_options() {
     return {
-    title: {
-        text: ''
-    },
+        title: {
+            text: ''
+        },
 
-    xAxis: {
-        tickWidth: 0,
-        gridLineWidth: 1,
-        labels: {
-            align: 'left',
-            x: 3,
-            y: -3
-        }
-    },
-
-    yAxis: [{ // left y axis
-        labels: {
-            align: 'left',
-            x: 3,
-            y: 3,
-            formatter: function() {
-                return Highcharts.numberFormat(this.value, 0);
+        xAxis: {
+            tickWidth: 0,
+            gridLineWidth: 1,
+            labels: {
+                align: 'left',
+                x: 3,
+                y: -3
             }
         },
-        showFirstLabel: false
-    }],
 
-    navigation: {
-        buttonOptions: {
-            enabled: false
-        }
-    },
+        yAxis: [{ // left y axis
+            labels: {
+                align: 'left',
+                x: 3,
+                y: 3,
+                formatter: function() {
+                    return Highcharts.numberFormat(this.value, 0);
+                }
+            },
+            showFirstLabel: false
+        }],
 
-    chart : {
-        renderTo : 'container',
-        events : {click: null }
-    },
-
-    rangeSelector : {
-        selected : 5
-    },
-
-    series : [],
-    series_template : {
-        // cloned by the code in index.html, and added as one series to 'series'
-        connectNulls: true,
-        tooltip: {
-            valueDecimals: 2
+        navigation: {
+            buttonOptions: {
+                enabled: false
+            }
         },
-        marker : {
-            enabled : true,
-            radius : 2
+
+        chart : {
+            renderTo : 'container',
+            events : {click: null }
         },
-        point: {events: {}}
+
+        rangeSelector : {
+            selected : 5
+        },
+
+        series : [],
+        series_template : {
+            // cloned by the code in index.html, and added as one series to 'series'
+            connectNulls: true,
+            tooltip: {
+                valueDecimals: 2
+            },
+            marker : {
+                enabled : true,
+                radius : 2
+            },
+            point: {events: {}}
+        },
+        colors: ["#7cb5ec"]
+
     }
-}
 }

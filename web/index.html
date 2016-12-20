@@ -7,16 +7,40 @@
 <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
 <link rel="apple-touch-icon" href="{{url_for('static', filename='mobile_icon.png')}}"/>
 <script src="{{url_for('static', filename='jquery.min.js')}}"></script>
-<script src="{{url_for('static', filename='jquery.dataTables.min.js')}}"></script>
 <script src="{{url_for('static', filename='highstock.js')}}"></script>
 <script src="{{url_for('static', filename='chart_options.js')}}"></script>
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='index.css')}}" />
 
 <script type="text/javascript">
-var summary_go_back = 0;
+var summary_index = 0;
+var series_length = 0;
+
+function add_toggles() {
+    for (var key in window.chart.series) {
+        series = window.chart.series[key];
+        if (series.name == "Navigator") continue;
+        input = $("<input/>")
+            .attr("type", "radio")
+            .data("key", key)
+            .attr("id", "checkbox-" + key)
+            .attr("name", "legend-radio")
+            .click(function(e) {
+                for (var key in window.chart.series) {
+                    window.chart.series[key].hide();
+                }
+                self = $(e.target);
+                window.chart.series[self.data("key")].show();
+            })
+        input.attr("checked", series.visible);
+        label = $("<label/>").attr("for", "checkbox-" + key).text(series.name);
+        div = $("<div/>");
+        input.appendTo(div);
+        label.appendTo(div);
+        div.appendTo($("#legend"));
+    }
+}
 
 function plot_highstock(str) {
-
     $.getJSON(str, function(data) {
         var options = get_options();
         for (var key in data) {
@@ -24,124 +48,134 @@ function plot_highstock(str) {
             options.series[key].data = data[key][1];
             options.series[key].name = data[key][0];
             options.series[key].point.events.click = chart_click;
+            options.series[key].visible = data[key][0] == "Total";
         }
         options.chart.events.click = chart_click;
         window.chart = new Highcharts.StockChart(options);
+        add_toggles();
+        create_summary_table();
     });
 }
 
 function chart_click(e) {
-    date_value = e.hasOwnProperty("point") ? e.point.x : e.xAxis[0].value;
-    str = "/goback_from_date?date=" + date_value;
-    $.getJSON(str, function(data) {
-        summary_go_back = data;
-        reload_summary();
-    });
-}
-
-function create_summary_table() {
-    $('#summary').DataTable( {
-        "processing": false,
-        "filter": false,
-        "paginate": false,
-        "info": false,
-        "sort": false,
-        "ajax": '/table_data?go_back=' + summary_go_back
-    } );
-}
-
-function replot()
-{
-    querystring_show = "";
-    $("input[name=selected-value]").each(function(i, sel) {
-        if ($(sel).prop("checked"))
-            querystring_show += "&" + $(sel).attr("id") + "=1";
-    });
-    var str = "/jsondata?" +
-        "show_peaks=" + (document.location.search.indexOf("show_peaks=1") != -1 ? 1 : 0) +
-        "&per_month_max=" + (document.location.search.indexOf("per_month_max=1") != -1 ? 1 : 0) +
-        querystring_show;
-    plot_highstock(str);
-}
-
-function create_radio_boxes() {
-    $.getJSON("/titles", function(data) {
-        data.shift();    // Remoe Date field
-        data.forEach(function(name) {
-            var elem = $('<input type="radio" name="selected-value" />');
-            elem.on("click", replot)
-            elem.attr("id", "show_" + name)
-            elem.appendTo("#selector");
-            $("<label/>").text(name).appendTo($("#selector"));
-        });
-    });
-}
-
-function reload_summary() {
-    $('#summary').DataTable().ajax.url("/table_data?go_back=" + summary_go_back).load();
-
-    if (summary_go_back == 0) {
-        $('#left-arrow').attr('class', 'arrow-left arrow-left-disabled');
-    } else {
-        $('#left-arrow').attr('class', 'arrow-left');
-    }
-
-}
-
-function summary_move(i) {
-    summary_go_back += i;
-    if (summary_go_back < 0) {
-        summary_go_back = 0;
+    date_value = window.chart.hoverPoints[0].x;
+    for (var index in window.chart.series[0].options.data) {
+        if (window.chart.series[0].options.data[index][0] == date_value) {
+            summary_index = parseInt(index);
+            break;
+        }
     }
     reload_summary();
 }
 
-function layout_on_dom_change() {
-    // the checkboxes are created dynamically so they don't exist until the DOM updates
-    // also the document dimensions are not correct until then...
-    // Wait for a DOM update by polling, and then continue loading the page
-    if ($("#show_Total").length > 0) {
-        $("#show_Total").prop("checked", true);
-        replot();
-        layout();
+function create_summary_table() {
+    function add_row(name) {
+        tr = $("<tr/>");
+        td = $("<td/>").appendTo(tr).text(name);
+        td = $("<td/>").appendTo(tr);
+        td = $("<td/>").appendTo(tr);
+        td = $("<td/>").appendTo(tr);
+        tr.appendTo(tbody);
     }
-    else {
-        window.setTimeout(layout_on_dom_change, 10);
+    tbody = $("#summary tbody");
+    add_row("Date");
+    for (var key in window.chart.series) {
+        series = window.chart.series[key];
+        if (series.name == "Navigator") continue;
+        add_row(series.name);
     }
+    series_length = series.options.data.length - 1;
+    summary_index = series_length;
+    reload_summary();
+}
+
+function parse_date(date) {
+    var dateobj = new Date(date);
+    function pad(number) {
+        if (number < 10) return "0" + number;
+        return number;
+    }
+    return pad(dateobj.getUTCDate()) + "/" + pad(dateobj.getUTCMonth() + 1) + "/" + dateobj.getUTCFullYear();
+}
+
+function reload_summary() {
+    for (var key in window.chart.series) {
+        series = window.chart.series[key];
+        if (series.name == "Navigator") continue;
+        var current_data = series.options.data[summary_index][1];
+        var prev_data = series.options.data[find_next_non_null_index(summary_index, -1)][1];
+        var tr = $("#summary tr:nth-child(" + (parseInt(key)+2) + ")");
+        $("td:nth-child(2)", tr).text(current_data.toFixed(2));
+        $("td:nth-child(3)", tr).text(prev_data.toFixed(2));
+        $("td:nth-child(4)", tr).text((current_data - prev_data).toFixed(2));
+    }
+    var current_date = window.chart.series["0"].options.data[summary_index][0];
+    var prev_date = window.chart.series["0"].options.data[find_next_non_null_index(summary_index, -1)][0];
+    $("#summary tr:first-child td:nth-child(2)").text(parse_date(current_date));
+    $("#summary tr:first-child td:nth-child(3)").text(parse_date(prev_date));
+
+    if (summary_index == series_length) {
+        $('#left-arrow').attr('class', 'arrow-left arrow-left-disabled');
+    } else {
+        $('#left-arrow').attr('class', 'arrow-left');
+    }
+    if (summary_index == 0) {
+        $('#right-arrow').attr('class', 'arrow-right arrow-right-disabled');
+    } else {
+        $('#right-arrow').attr('class', 'arrow-right');
+    }
+}
+
+function find_next_non_null_index(index, i) {
+    do {
+        index += i;
+        if (index < 0) {
+            index = 0;
+            break;
+        }
+        if (index > series_length) {
+            index = series_length;
+            break;
+        }
+    } while (window.chart.series[0].options.data[index][1] == null);
+    return index;
+}
+
+function summary_move(i) {
+    summary_index = find_next_non_null_index(summary_index, i);
+    reload_summary();
 }
 
 $(document).ready(function() {
-    create_radio_boxes();
-    create_summary_table();
-    layout_on_dom_change()
+    plot_highstock("/jsondata");
 });
 
-function layout() {
-    $("#container").height($(window).height() - $("#selector").outerHeight() - $("#summary").outerHeight());
-}
-
-$(window).on("resize", layout);
 
 </script>
 
 </head>
 <body>
 
-<table class="summary" id="summary">
-    <thead>
-        <tr>
-            <th>
-            <div class="arrow-left arrow-left-disabled" id="left-arrow" onclick="javascript:summary_move(-1)"></div>
-            <div class="arrow-right" onclick="javascript:summary_move(1)"></div></th>
-            <th>Latest Data</th>
-            <th>Prev Data</th>
-            <th>Delta</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <div>
+        <div id="container"></div>
 
-<div id="container"></div>
-<div id="selector"></div>
+        <div id="extra">
+            <table class="summary" id="summary">
+                <thead>
+                    <tr>
+                        <th>
+                        <div class="arrow-left arrow-left-disabled" id="left-arrow" onclick="javascript:summary_move(1)"></div>
+                        <div class="arrow-right" id="right-arrow" onclick="javascript:summary_move(-1)"></div></th>
+                        <th>Latest Data</th>
+                        <th>Prev Data</th>
+                        <th>Delta</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div id="legend"></div>
+        </div>
+    </div>
 </body>
 </html>
