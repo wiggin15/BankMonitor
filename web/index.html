@@ -15,7 +15,7 @@
 var summary_index = 0;
 var series_length = 0;
 
-function add_toggles() {
+function create_legend() {
     for (var key in window.chart.series) {
         series = window.chart.series[key];
         if (series.name == "Navigator") continue;
@@ -33,7 +33,7 @@ function add_toggles() {
             })
         input.attr("checked", series.visible);
         label = $("<label/>").attr("for", "checkbox-" + key).text(series.name);
-        div = $("<div/>");
+        div = $("<div/>").addClass("legend-div");
         input.appendTo(div);
         label.appendTo(div);
         div.appendTo($("#legend"));
@@ -52,7 +52,7 @@ function plot_highstock(str) {
         }
         options.chart.events.click = chart_click;
         window.chart = new Highcharts.StockChart(options);
-        add_toggles();
+        create_legend();
         create_summary_table();
     });
 }
@@ -156,26 +156,22 @@ $(document).ready(function() {
 </head>
 <body>
 
-    <div>
+    <div id="parent">
+        <table class="summary" id="summary">
+            <thead>
+                <tr>
+                    <th>
+                    <div class="arrow-left arrow-left-disabled" id="left-arrow" onclick="javascript:summary_move(1)"></div>
+                    <div class="arrow-right" id="right-arrow" onclick="javascript:summary_move(-1)"></div></th>
+                    <th>Latest Data</th>
+                    <th>Prev Data</th>
+                    <th>Delta</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
         <div id="container"></div>
-
-        <div id="extra">
-            <table class="summary" id="summary">
-                <thead>
-                    <tr>
-                        <th>
-                        <div class="arrow-left arrow-left-disabled" id="left-arrow" onclick="javascript:summary_move(1)"></div>
-                        <div class="arrow-right" id="right-arrow" onclick="javascript:summary_move(-1)"></div></th>
-                        <th>Latest Data</th>
-                        <th>Prev Data</th>
-                        <th>Delta</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-            <div id="legend"></div>
-        </div>
+        <div id="legend"></div>
     </div>
 </body>
 </html>
