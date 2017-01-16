@@ -51,7 +51,7 @@ function get_options() {
             marker : {
                 enabled : true,
                 radius : 2,
-                marker : 'circle'
+                symbol : 'circle'
             },
             point: {events: {}}
         },
