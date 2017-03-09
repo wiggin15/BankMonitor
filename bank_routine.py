@@ -39,7 +39,10 @@ def main():
         wait_until_time(*update_time)
         print("-" * 20)
         print("updating", time.strftime("%d/%m/%y"))
-        update()
+        try:
+            update()
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':
