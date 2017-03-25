@@ -18,7 +18,7 @@ class CardLeumi(AssetBase):
         return 0
 
     def get_values(self):
-        summery_page = self._session.get(BankLeumi.HOME_URL).text
+        summery_page = self._session.open(BankLeumi.HOME_URL).read()
         val_matchobj = re.search(self.TOTAL_RE, summery_page)
         if val_matchobj is None:
             return OrderedDict([("Credit", 0)])
