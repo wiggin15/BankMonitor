@@ -1,11 +1,12 @@
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import BankBase, format_value
+
 
 # username is in format <id>,<code>
 
-class BankDiscount(AssetBase):
+class BankDiscount(BankBase):
     LOGIN_URL = "https://start.telebank.co.il/LoginPages/LogonMarketing2?pagekey=home&multilang=he&t=p&bank=d"
     LOGIN_COOKIE_URL = "https://start.telebank.co.il/LoginPages/vs/vsen.jsp"
     LOGIN_POST_URL = "https://start.telebank.co.il/LoginPages/Dispatcher"
@@ -19,7 +20,7 @@ class BankDiscount(AssetBase):
         MAGIC_COOKIE_NAME = "G4CmE"  # cookie containing RSA public key for encryption
         MAGIC_COOKIE_PATTERN = "3ba782e1"  # magic string used as a splitter to find the RSA key in cookie
         RSA_EXPONENT = "10001"  # constant exponent used for RSA public key
-        PASSWORD_PRE_ENC_PREFIX = "[ENC]"   # added to password before encrypting it
+        PASSWORD_PRE_ENC_PREFIX = "[ENC]"  # added to password before encrypting it
         PASSWORD_DELIMETER = "|@|"
         PASSWORD_SUFFIX = "|(#)|"
 
@@ -32,7 +33,7 @@ class BankDiscount(AssetBase):
         pwd = PASSWORD_PRE_ENC_PREFIX + pwd
         res = ""
         for i in range(0, len(pwd), 7):
-            part = pwd[i:i+7]
+            part = pwd[i:i + 7]
             res += cipher.encrypt(part).encode("hex") + PASSWORD_DELIMETER
         res = res[:-3] + PASSWORD_SUFFIX
         return res

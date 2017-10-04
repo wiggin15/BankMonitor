@@ -1,10 +1,12 @@
+import cookielib
 import re
-import requests
-import cookielib, urllib2, urllib
+import urllib
+import urllib2
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import BankBase, format_value
 
-class BankLeumi(AssetBase):
+
+class BankLeumi(BankBase):
     LOGIN_URL = "https://hb2.bankleumi.co.il/H/Login.html"
     LOGIN_POST_URL = "https://hb2.bankleumi.co.il/InternalSite/Validate.asp"
     HOME_URL = "https://hb2.bankleumi.co.il/uniquesig0/ebanking/SO/SPA.aspx#/hpsummary"
@@ -19,9 +21,9 @@ class BankLeumi(AssetBase):
         post_data = {'system': 'test', 'uid': username, 'password': password, 'command': 'login'}
         post_data_str = urllib.urlencode(post_data)
         opener.open(self.LOGIN_POST_URL, data=post_data_str)
-		
+
         self._summery_page = opener.open(self.HOME_URL).read()
-		
+
         return opener
 
     def _get_checking_balance(self):
@@ -45,4 +47,3 @@ class BankLeumi(AssetBase):
         return OrderedDict([("Checking", self._get_checking_balance()),
                             ("Holdings", self._get_holdings_balance()),
                             ("Deposit", self._get_deposit_balance())])
-

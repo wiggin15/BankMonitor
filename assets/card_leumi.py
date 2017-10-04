@@ -1,10 +1,10 @@
 import re
 from collections import OrderedDict
-from common import AssetBase, format_value
 from bank_leumi import BankLeumi
+from common import format_value, CardBase
 
 
-class CardLeumi(AssetBase):
+class CardLeumi(CardBase):
     TOTAL_RE = r'{\\"AccountType\\":\\"CREDITCARD\\",\\"TotalPerAccountType\\":(.+?)}'
 
     def __init__(self, username, password):

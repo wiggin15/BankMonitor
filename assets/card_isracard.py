@@ -1,9 +1,10 @@
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import CardBase, format_value
 
-class CardIsracard(AssetBase):
+
+class CardIsracard(CardBase):
     ISRACARD_PAGE = "https://service.isracard.co.il/isracard/isracard"
     TRANSACTION_ID = "RikuzChiuvimAtidiim_202"
 
@@ -36,4 +37,4 @@ class CardIsracard(AssetBase):
         num_cards = int(num_cards_text) + 1
         self._csrf_token = re.search('csrfToken" value="([^"]+)"', sum_page).group(1)
         card_total = sum(self._get_card_value(card_index) for card_index in range(num_cards))
-        return OrderedDict([("Credit", 0-card_total)])
+        return OrderedDict([("Credit", 0 - card_total)])

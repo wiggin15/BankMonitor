@@ -1,9 +1,10 @@
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import CardBase, format_value
 
-class CardCal(AssetBase):
+
+class CardCal(CardBase):
     CARD_LOGIN_URL = "https://services.cal-online.co.il/card-holders/Screens/AccountManagement/Login.aspx"
     CARD_HOME_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/HomePage.aspx"
     CARD_DETAIL_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/CardDetails.aspx"
@@ -31,4 +32,4 @@ class CardCal(AssetBase):
 
     def get_values(self):
         card_total = self._get_balance("lblTotalRemainingSum")
-        return OrderedDict([("Credit", 0-card_total)])
+        return OrderedDict([("Credit", 0 - card_total)])
