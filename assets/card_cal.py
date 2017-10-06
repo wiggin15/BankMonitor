@@ -1,6 +1,5 @@
 import re
 import requests
-from collections import OrderedDict
 from common import CardBase, format_value
 
 
@@ -27,9 +26,9 @@ class CardCal(CardBase):
                       for card_details_query in card_details_queries]
         return sum(self._get_card_value(card_data.text, card_code) for card_data in card_datas)
 
+    def get_credit(self):
+        card_total = self._get_balance("lblTotalRemainingSum")
+        return 0 - card_total
+
     def get_next(self):
         return self._get_balance("lblNextDebitSum")
-
-    def get_values(self):
-        card_total = self._get_balance("lblTotalRemainingSum")
-        return OrderedDict([("Credit", 0 - card_total)])

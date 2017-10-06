@@ -20,6 +20,10 @@ def get_config_int(section, option):
     return _config.getint(section, option)
 
 
+def get_config_options(section):
+    return dict(_config.items(section))
+
+
 def get_asset_sections():
     all_sections = _config.sections()
     return [x for x in all_sections if x not in {"general", "webserver"}]

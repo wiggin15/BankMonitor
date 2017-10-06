@@ -29,19 +29,19 @@ class BankLeumi(BankBase):
     def _get_checking_balance(self):
         val_matchobj = re.search(self.CHECKING_RE, self._summery_page)
         val = val_matchobj.group(1)
-        return format_value(val, 'checking')
+        return format_value(val, 'Checking')
 
     def _get_holdings_balance(self):
         val_matchobj = re.search(self.HOLDINGS_RE, self._summery_page)
         val = val_matchobj.group(1)
-        return format_value(val, 'holdings')
+        return format_value(val, 'Holdings')
 
     def _get_deposit_balance(self):
         val_matchobj = re.search(self.DEPOSIT_RE, self._summery_page)
         if val_matchobj is None:
             return 0
         val = val_matchobj.group(1)
-        return format_value(val, 'deposit')
+        return format_value(val, 'Deposit')
 
     def get_values(self):
         return OrderedDict([("Checking", self._get_checking_balance()),
