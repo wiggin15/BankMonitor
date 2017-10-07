@@ -17,6 +17,21 @@ def format_value(value_text, print_name=None):
     return val
 
 
+def memoize(func):
+    memo = {}
+
+    def wrapper(*args):
+        if args in memo:
+            return memo[args]
+        else:
+            rv = func(*args)
+            memo[args] = rv
+            return rv
+
+    return wrapper
+
+
+@memoize
 def get_usd_to_ils_conversion_ratio():
     api_result = requests.get("https://api.fixer.io/latest?base=USD&symbols=ILS").text
     api_data = json.loads(api_result)
@@ -24,21 +39,26 @@ def get_usd_to_ils_conversion_ratio():
 
 
 def convert_usd_to_ils(usd_value):
-    try:
-        ratio = convert_usd_to_ils.conversion_ratio
-    except AttributeError:
-        convert_usd_to_ils.conversion_ratio = get_usd_to_ils_conversion_ratio()
-        ratio = convert_usd_to_ils.conversion_ratio
-
+    ratio = get_usd_to_ils_conversion_ratio()
     return usd_value * ratio
+
+
+@memoize
+def get_stock_value(stock_name):
+    url = "https://www.alphavantage.co/query?apikey=97DT8FPVN9WQQGIQ&function=TIME_SERIES_DAILY&symbol={}" \
+        .format(stock_name)
+    api_result = requests.get(url).text
+    api_data = json.loads(api_result)
+    daily_stats = api_data["Time Series (Daily)"]
+    return float(daily_stats[max(daily_stats.keys())]["1. open"])
 
 
 class AssetBase(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, asset_section, asset_options):
-        self._username = asset_options.get("user", None)
-        self._password = asset_options.get("password", None)
+    def __init__(self, asset_section, user=None, password=None, **asset_options):
+        self._username = user
+        self._password = password
         if not self._username or not self._password:
             raise Exception("{} credentials missing".format(asset_section.capitalize()))
 
@@ -66,10 +86,6 @@ class CardBase(AssetBase):
 
 
 class StockBrokerBase(AssetBase):
-    def __init__(self, asset_section, asset_options):
-        super(StockBrokerBase, self).__init__(asset_section, asset_options)
-        self._tax_percentage = float(asset_options.get("tax_percentage", 0))
-
     @abstractmethod
     def get_exercisable(self):
         raise NotImplementedError()

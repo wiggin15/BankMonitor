@@ -6,9 +6,6 @@ from common import format_value, CardBase
 class CardLeumi(CardBase):
     TOTAL_RE = r'{\\"AccountType\\":\\"CREDITCARD\\",\\"TotalPerAccountType\\":(.+?)}'
 
-    def __init__(self, username, password):
-        super(CardLeumi, self).__init__(username, password)
-
     def _establish_session(self, username, password):
         self._bank_instance = BankLeumi(username, password)
         return self._bank_instance._session

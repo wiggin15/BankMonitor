@@ -7,8 +7,9 @@ class MorganStanleyStockPlanConnect(StockBrokerBase):
     LOGIN_URL = "https://stockplanconnect.morganstanley.com/app-bin/cesreg/Login"
     SUMMARY_URL = "https://stockplanconnect.morganstanley.com/app-bin/spc/ba/sps/summary?format=json"
 
-    def __init__(self, asset_section, asset_options):
-        super(MorganStanleyStockPlanConnect, self).__init__(asset_section, asset_options)
+    def __init__(self, asset_section, tax_percentage=0, **asset_options):
+        super(MorganStanleyStockPlanConnect, self).__init__(asset_section, **asset_options)
+        self.__tax_percentage = float(tax_percentage)
         summary_data_str = self._session.get(self.SUMMARY_URL).text
         summary_data_str = summary_data_str[summary_data_str.index("{"):]
         self.__summary_data = json.loads(summary_data_str)
@@ -23,7 +24,7 @@ class MorganStanleyStockPlanConnect(StockBrokerBase):
         value_str_raw = self.__summary_data[value_name]
         value = float(value_str_raw[1:].replace(",", ""))
         print_value(value, "{} original (USD)".format(print_name))
-        value_ils = convert_usd_to_ils(value) * (1 - self._tax_percentage)
+        value_ils = convert_usd_to_ils(value) * (1 - self.__tax_percentage)
         print_value(value_ils, "{} final".format(print_name))
         return value_ils
 

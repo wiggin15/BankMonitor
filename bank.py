@@ -12,7 +12,7 @@ from config import get_config_value, get_asset_sections, get_config_options
 def get_asset_checker(asset_section):
     class_name = get_config_value(asset_section, "type")
     asset_options = get_config_options(asset_section)
-    return globals()[class_name](asset_section, asset_options)
+    return globals()[class_name](asset_section, **asset_options)
 
 
 def main():
