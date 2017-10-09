@@ -7,7 +7,7 @@ class MorganStanleyStockPlanConnect(StockBrokerBase):
     LOGIN_URL = "https://stockplanconnect.morganstanley.com/app-bin/cesreg/Login"
     SUMMARY_URL = "https://stockplanconnect.morganstanley.com/app-bin/spc/ba/sps/summary?format=json"
 
-    def __init__(self, asset_section, tax_percentage=0, **asset_options):
+    def __init__(self, asset_section, tax_percentage=0.25, **asset_options):
         super(MorganStanleyStockPlanConnect, self).__init__(asset_section, **asset_options)
         self.__tax_percentage = float(tax_percentage)
         summary_data_str = self._session.get(self.SUMMARY_URL).text

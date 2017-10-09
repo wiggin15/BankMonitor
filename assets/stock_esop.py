@@ -10,7 +10,7 @@ class StockEsop(StockBrokerBase):
     SERVLET_URL = "https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/gwtservlet"
     PLAN_OBJECT_DATA_LENGTH = 49
 
-    def __init__(self, asset_section, gain_tax_percentage=0, income_tax_percentage=0, **asset_options):
+    def __init__(self, asset_section, gain_tax_percentage=0.25, income_tax_percentage=0.47, **asset_options):
         super(StockEsop, self).__init__(asset_section, **asset_options)
         self.__gain_tax_percentage = float(gain_tax_percentage)
         self.__income_tax_percentage = float(income_tax_percentage)
