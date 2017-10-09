@@ -44,6 +44,7 @@ def csv_enumerator(show_peaks=False):
                     continue
                 line = line[1:]
             values = line.strip().split(",")
+            values = values + (["0"] * (len(titles) - len(values)))  # Zero columns at the end if they are missing
             yield OrderedDict(zip(titles, values))
 
 
