@@ -5,7 +5,7 @@ from __future__ import print_function
 from collections import OrderedDict
 # noinspection PyUnresolvedReferences
 from assets import *
-from assets.common import BankBase, CardBase, StockBrokerBase
+from assets.common import BankBase, CardBase, StockBrokerBase, all_memoize_caches
 from config import get_config_value, get_asset_sections, get_config_options
 
 
@@ -16,6 +16,8 @@ def get_asset_checker(asset_section):
 
 
 def main():
+    for cache in all_memoize_caches:
+        cache.clear()
     all_values = OrderedDict()
 
     bank_total = 0

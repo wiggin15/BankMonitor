@@ -17,8 +17,12 @@ def format_value(value_text, print_name=None):
     return val
 
 
+all_memoize_caches = []
+
+
 def memoize(func):
     memo = {}
+    all_memoize_caches.append(memo)
 
     def wrapper(*args):
         if args in memo:
