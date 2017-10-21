@@ -1,6 +1,6 @@
 import json
 import requests
-from common import CardBase
+from common import CardBase, format_value
 
 
 class CardIsracard(CardBase):
@@ -51,7 +51,7 @@ class CardIsracard(CardBase):
         card_data_raw = self._session.get(self.CARD_DATA_URL).text
         card_data = json.loads(card_data_raw)
         upcoming_billing = card_data["DashboardChargesBean"]["inOut"][0]["nextTotalsInOut"][0]["billingSumSekelInOut"]
-        return 0 - upcoming_billing
+        return format_value("-" + upcoming_billing, 'Credit')
 
     def get_next(self):
         return 0

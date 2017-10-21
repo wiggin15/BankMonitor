@@ -1,8 +1,6 @@
-import cookielib
 import re
-import urllib
-import urllib2
 from collections import OrderedDict
+import requests
 from common import BankBase, format_value
 
 
@@ -14,17 +12,16 @@ class BankLeumi(BankBase):
     HOLDINGS_RE = r'{\\"AccountType\\":\\"SECURITIES\\",\\"TotalPerAccountType\\":(.+?)}'
     DEPOSIT_RE = r'{\\"AccountType\\":\\"CD\\",\\"TotalPerAccountType\\":(.+?)}'
 
+    def __init__(self, asset_section, **asset_options):
+        super(BankLeumi, self).__init__(asset_section, **asset_options)
+        self._summery_page = self._session.get(self.HOME_URL).text
+
     def _establish_session(self, username, password):
-        cj = cookielib.CookieJar()
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        opener.open(self.LOGIN_URL)
+        s = requests.Session()
+        s.get(self.LOGIN_URL)
         post_data = {'system': 'test', 'uid': username, 'password': password, 'command': 'login'}
-        post_data_str = urllib.urlencode(post_data)
-        opener.open(self.LOGIN_POST_URL, data=post_data_str)
-
-        self._summery_page = opener.open(self.HOME_URL).read()
-
-        return opener
+        s.post(self.LOGIN_POST_URL, data=post_data)
+        return s
 
     def _get_checking_balance(self):
         val_matchobj = re.search(self.CHECKING_RE, self._summery_page)
@@ -39,7 +36,7 @@ class BankLeumi(BankBase):
     def _get_deposit_balance(self):
         val_matchobj = re.search(self.DEPOSIT_RE, self._summery_page)
         if val_matchobj is None:
-            return 0
+            return format_value("0", 'Deposit')
         val = val_matchobj.group(1)
         return format_value(val, 'Deposit')
 
@@ -47,3 +44,6 @@ class BankLeumi(BankBase):
         return OrderedDict([("Checking", self._get_checking_balance()),
                             ("Holdings", self._get_holdings_balance()),
                             ("Deposit", self._get_deposit_balance())])
+
+    def get_summery_page(self):
+        return self._summery_page
