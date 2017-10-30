@@ -6,6 +6,8 @@ from assets.common import StockBrokerBase, convert_usd_to_ils, print_value
 class MorganStanleyStockPlanConnect(StockBrokerBase):
     LOGIN_URL = "https://stockplanconnect.morganstanley.com/app-bin/cesreg/Login"
     SUMMARY_URL = "https://stockplanconnect.morganstanley.com/app-bin/spc/ba/sps/summary?format=json"
+    HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100"}
 
     def __init__(self, asset_section, tax_percentage=0.25, **asset_options):
         super(MorganStanleyStockPlanConnect, self).__init__(asset_section, **asset_options)
@@ -17,7 +19,7 @@ class MorganStanleyStockPlanConnect(StockBrokerBase):
     def _establish_session(self, username, password):
         s = requests.Session()
         post_data = {"username": username, "unmaskedUsername": username, "password": password}
-        s.post(self.LOGIN_URL, data=post_data)
+        s.post(self.LOGIN_URL, data=post_data, headers=self.HEADERS)
         return s
 
     def get_summary_value(self, value_name, print_name):
