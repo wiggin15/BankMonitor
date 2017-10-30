@@ -4,13 +4,15 @@ from assets.common import StockBrokerBase, format_value
 
 
 class StockFidelityNetBenefits(StockBrokerBase):
-    LOGIN_URL = "https://login.fidelity.com/ftgw/Fas/Fidelity/PWI/Login/Response/dj.chf.ra/"
+    LOGIN_URL = "https://nb.fidelity.com/public/nb/default/home"
+    LOGIN_POST_URL = "https://login.fidelity.com/ftgw/Fas/Fidelity/PWI/Login/Response/dj.chf.ra/"
     SUMMARY_URL = "https://netbenefitsww.fidelity.com/mybenefitsww/stockplans/navigation/PlanSummary"
 
     def _establish_session(self, username, password):
         s = requests.Session()
+        s.get(self.LOGIN_URL)
         post_data = {"username": username, "password": password, "SavedIdInd": "N"}
-        s.post(self.LOGIN_URL, data=post_data)
+        s.post(self.LOGIN_POST_URL, data=post_data)
         return s
 
     def get_exercisable(self):
