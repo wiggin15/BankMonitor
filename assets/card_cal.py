@@ -1,6 +1,6 @@
 import re
 import requests
-from common import CardBase, format_value
+from common import CardBase, format_value, print_value
 
 
 class CardCal(CardBase):
@@ -28,6 +28,7 @@ class CardCal(CardBase):
 
     def get_credit(self):
         card_total = self._get_balance("lblTotalRemainingSum")
+        print_value(0 - card_total, "Credit")
         return 0 - card_total
 
     def get_next(self):
