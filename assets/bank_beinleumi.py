@@ -29,7 +29,7 @@ class BankBeinleumi(AssetBase):
         self._wait_for_id("username")
         self.selenium.find_element_by_id("username").send_keys(username)
         self.selenium.find_element_by_id("password").send_keys(password)
-        self.selenium.find_element_by_id("form").submit()
+        self.selenium.find_element_by_id("loginForm").submit()
         time.sleep(10)
         self.selenium.switch_to.default_content()
 
@@ -54,7 +54,7 @@ class BankBeinleumi(AssetBase):
 
     def _get_values_from_main_page(self):
         main_html = self._session.get(self.HOME_URL).text
-        match_obj = re.search(self.BALANCE_PATTERN, main_html)
+        match_obj = re.search(self.BALANCE_PATTERN, main_html, re.DOTALL)
         if match_obj is None:
             return 0
         OSH = match_obj.group(1)
