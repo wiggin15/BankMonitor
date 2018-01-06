@@ -11,6 +11,7 @@ The following banks can be defined in config.ini under `[bank]`
 ## Credit Cards
 The following credit card types can be defined in config.ini under `[card]`
 * CardCal
+  * See Selenium section below for dependencies
 * CardLeumi
   * Only if the card is issued by Bank Leumi
 * CardIsracard

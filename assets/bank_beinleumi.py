@@ -17,7 +17,7 @@ class BankBeinleumi(AssetBase):
     BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
 
     def _wait_for_id(self, html_id):
-        indicator = EC.presence_of_element_located((By.CSS_SELECTOR, "#" + html_id))
+        indicator = EC.presence_of_element_located((By.ID, html_id))
         WebDriverWait(self.selenium, 10).until(indicator)
 
     def _establish_session(self, username, password):
