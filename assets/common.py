@@ -60,6 +60,8 @@ def get_stock_value(stock_name):
 class AssetBase(object):
     __metaclass__ = ABCMeta
 
+
+class AuthenticatedAssetBase(AssetBase):
     def __init__(self, asset_section, user=None, password=None, **asset_options):
         self._username = user
         self._password = password
@@ -73,13 +75,13 @@ class AssetBase(object):
         raise NotImplementedError()
 
 
-class BankBase(AssetBase):
+class BankBase(AuthenticatedAssetBase):
     @abstractmethod
     def get_values(self):
         raise NotImplementedError()
 
 
-class CardBase(AssetBase):
+class CardBase(AuthenticatedAssetBase):
     @abstractmethod
     def get_credit(self):
         raise NotImplementedError()
@@ -89,7 +91,7 @@ class CardBase(AssetBase):
         raise NotImplementedError()
 
 
-class StockBrokerBase(AssetBase):
+class StockBrokerBase(AuthenticatedAssetBase):
     @abstractmethod
     def get_exercisable(self):
         raise NotImplementedError()
@@ -100,4 +102,15 @@ class StockBrokerBase(AssetBase):
 
     @abstractmethod
     def get_unvested(self):
+        raise NotImplementedError()
+
+
+class CommodityBase(AssetBase):
+    def __init__(self, asset_section, amount=None, **asset_options):
+        if not amount:
+            raise Exception("{} amount missing".format(asset_section.capitalize()))
+        self._amount = float(amount)
+
+    @abstractmethod
+    def get_value(self):
         raise NotImplementedError()

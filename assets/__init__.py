@@ -8,3 +8,4 @@ from card_isracard import CardIsracard
 from stock_morgan_stanley import MorganStanleyStockPlanConnect
 from stock_esop import StockEsop
 from stock_fidelity import StockFidelityNetBenefits
+from commodity_crypto import Cryptocurrency

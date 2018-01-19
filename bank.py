@@ -5,7 +5,7 @@ from __future__ import print_function
 from collections import OrderedDict
 # noinspection PyUnresolvedReferences
 from assets import *
-from assets.common import BankBase, CardBase, StockBrokerBase, all_memoize_caches
+from assets.common import BankBase, CardBase, StockBrokerBase, all_memoize_caches, CommodityBase
 from config import get_config_value, get_asset_sections, get_config_options
 
 
@@ -26,6 +26,7 @@ def main():
     stock_exercisable = 0
     stock_vested = 0
     stock_unvested = 0
+    commodity_total = 0
     asset_sections = get_asset_sections()
     for asset_section in asset_sections:
         print("{}:".format(asset_section))
@@ -45,6 +46,10 @@ def main():
             stock_exercisable += exercisable_value
             stock_vested += checker.get_vested()
             stock_unvested += checker.get_unvested()
+        elif isinstance(checker, CommodityBase):
+            value = checker.get_value()
+            values = OrderedDict([("Value", value)])
+            commodity_total += value
         else:
             raise Exception("Unknown checker {} of type {}".format(checker, type(checker)))
 
@@ -54,13 +59,20 @@ def main():
 
         print()
 
-    print("Total all banks: {:10,.2f}".format(bank_total))
-    print()
-    print("All cards: {:,.2f} (next: {:,.2f})".format(card_total, card_next))
-    print()
-    print("All stock brokers: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"
-          .format(stock_exercisable, stock_vested, stock_unvested))
-    print()
+    if bank_total != 0:
+        print("All banks: {:10,.2f}".format(bank_total))
+        print()
+    if card_total != 0 or card_next != 0:
+        print("All cards: {:,.2f} (next: {:,.2f})".format(card_total, card_next))
+        print()
+    if stock_exercisable != 0 or stock_vested != 0 or stock_unvested != 0:
+        print("All stock brokers: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"
+              .format(stock_exercisable, stock_vested, stock_unvested))
+        print()
+    if commodity_total != 0:
+        print("All commodities: {:,.2f}".format(commodity_total))
+        print()
+
     print("Total: {:10,.2f}".format(bank_total - card_total + stock_exercisable))
     print()
 
