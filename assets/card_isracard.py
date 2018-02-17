@@ -47,11 +47,11 @@ class CardIsracard(CardBase):
         assert result["status"] == "1"
         return s
 
-    def get_credit(self):
+    def _get_credit(self):
         card_data_raw = self._session.get(self.CARD_DATA_URL).text
         card_data = json.loads(card_data_raw)
         upcoming_billing = card_data["DashboardChargesBean"]["inOut"][0]["nextTotalsInOut"][0]["billingSumSekelInOut"]
         return format_value("-" + upcoming_billing, 'Credit')
 
-    def get_next(self):
+    def _get_next(self):
         return 0

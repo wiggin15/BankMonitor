@@ -1,10 +1,10 @@
 import json
 import re
 import requests
-from assets.common import StockBrokerBase, format_value
+from assets.common import WorkStockBase, format_value
 
 
-class StockFidelityNetBenefits(StockBrokerBase):
+class StockFidelityNetBenefits(WorkStockBase):
     LOGIN_URL = "https://nb.fidelity.com/public/nb/default/home"
     SENSOR_DATA_URL = "https://nb.fidelity.com/_bm/_data"
     PRE_LOGIN_URL = "https://nb.fidelity.com/public/nb/api/prelogin/default"
@@ -41,13 +41,13 @@ class StockFidelityNetBenefits(StockBrokerBase):
 
         return s
 
-    def get_exercisable(self):
+    def _get_exercisable(self):
         summary_data_str = self._session.get(self.SUMMARY_URL).text
         match = re.search("""<sup class="dollar">.+?</sup>(.+?)<span class="currency">""", summary_data_str)
         return format_value(match.group(1), "Total")
 
-    def get_vested(self):
+    def _get_vested(self):
         return 0
 
-    def get_unvested(self):
+    def _get_unvested(self):
         return 0

@@ -2,10 +2,10 @@ from __future__ import print_function
 import json
 import requests
 from datetime import datetime
-from assets.common import StockBrokerBase, get_stock_value, convert_usd_to_ils, print_value
+from assets.common import WorkStockBase, get_stock_value, convert_usd_to_ils, print_value
 
 
-class StockEsop(StockBrokerBase):
+class StockEsop(WorkStockBase):
     LOGIN_URL = "https://www.capital-m.co.il/C-MClient/j_security_check"
     SERVLET_URL = "https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/gwtservlet"
     PLAN_OBJECT_DATA_LENGTH = 49
@@ -121,11 +121,11 @@ class StockEsop(StockBrokerBase):
         print_value(result, value_name)
         return result
 
-    def get_exercisable(self):
+    def _get_exercisable(self):
         return self.__get_total_value("Exercisable")
 
-    def get_vested(self):
+    def _get_vested(self):
         return self.__get_total_value("Vested")
 
-    def get_unvested(self):
+    def _get_unvested(self):
         return self.__get_total_value("Unvested")

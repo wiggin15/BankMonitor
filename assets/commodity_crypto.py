@@ -13,7 +13,7 @@ class Cryptocurrency(CommodityBase):
         if not self.__symbol:
             raise Exception("{} symbol missing".format(asset_section.capitalize()))
 
-    def get_value(self):
+    def _get_value(self):
         url = "https://min-api.cryptocompare.com/data/price?fsym={}&tsyms={}".format(self.__symbol,
                                                                                      self.TARGET_CURRENCY)
         api_result = requests.get(url).text

@@ -13,7 +13,7 @@ class CardLeumi(CardBase):
     def _establish_session(self, username, password):
         return None
 
-    def get_credit(self):
+    def _get_credit(self):
         val_matchobj = re.search(self.TOTAL_RE, self.__bank_instance.get_summery_page())
         if val_matchobj is None:
             return format_value("0", 'Credit')
@@ -21,5 +21,5 @@ class CardLeumi(CardBase):
         credit = format_value(val, 'Credit')
         return credit
 
-    def get_next(self):
+    def _get_next(self):
         return 0

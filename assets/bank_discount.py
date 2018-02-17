@@ -1,6 +1,8 @@
 import re
 import requests
 from collections import OrderedDict
+
+from assets import stats
 from common import BankBase, format_value
 
 
@@ -49,8 +51,9 @@ class BankDiscount(BankBase):
         s.post(self.LOGIN_POST_URL, data=data)
         return s
 
-    def get_values(self):
+    def get_values(self, stats_dict):
         account_html = self._session.get(self.ACCOUNT_PAGE).text
         value_text = re.search(self.VALUE_RE, account_html).group(1)
         val = format_value(value_text)
+        stats_dict.get_stat(stats.StatType.STAT_BANK).add(val)
         return OrderedDict([("Bank", val)])
