@@ -5,7 +5,9 @@ from enum import Enum
 
 class StatBase(object):
     __metaclass__ = ABCMeta
-    __total = 0
+
+    def __init__(self):
+        self.__total = 0
 
     @abstractmethod
     def print_stat(self):
@@ -27,7 +29,10 @@ class StatNone(StatBase):
 
 
 class StatBank(StatBase):
-    __total = 0
+
+    def __init__(self):
+        super(StatBank, self).__init__()
+        self.__total = 0
 
     def add(self, amount):
         self.__total += amount
@@ -38,8 +43,11 @@ class StatBank(StatBase):
 
 
 class StatCard(StatBase):
-    __total = 0
-    __next = 0
+
+    def __init__(self):
+        super(StatCard, self).__init__()
+        self.__total = 0
+        self.__next = 0
 
     def add(self, amount, next_amount=0):
         self.__total += abs(amount)
@@ -51,7 +59,10 @@ class StatCard(StatBase):
 
 
 class StatStockBroker(StatBase):
-    __total = 0
+
+    def __init__(self):
+        super(StatStockBroker, self).__init__()
+        self.__total = 0
 
     def add(self, amount):
         self.__total += amount
@@ -62,9 +73,12 @@ class StatStockBroker(StatBase):
 
 
 class StatWorkStock(StatBase):
-    __exercisable = 0
-    __vested = 0
-    __unvested = 0
+
+    def __init__(self):
+        super(StatWorkStock, self).__init__()
+        self.__exercisable = 0
+        self.__vested = 0
+        self.__unvested = 0
 
     def add(self, exercisable, vested=0, unvested=0):
         self.__exercisable += exercisable
@@ -93,7 +107,9 @@ class StatType(Enum):
 
 
 class StatsDict(object):
-    __all_stats = {}
+
+    def __init__(self):
+        self.__all_stats = {}
 
     def get_stat(self, key):
         if not isinstance(key, StatType):
