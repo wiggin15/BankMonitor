@@ -8,7 +8,7 @@ from config import get_config_value, get_asset_sections, get_config_options
 import assets
 
 
-def get_asset_checker(asset_section):
+def get_asset(asset_section):
     class_name = get_config_value(asset_section, "type")
     asset_options = get_config_options(asset_section)
     return getattr(assets, class_name)(asset_section, **asset_options)
@@ -28,24 +28,24 @@ def main():
     asset_sections = get_asset_sections()
     for asset_section in asset_sections:
         print("{}:".format(asset_section))
-        checker = get_asset_checker(asset_section)
+        asset = get_asset(asset_section)
 
-        if isinstance(checker, BankBase):
-            values = checker.get_values()
+        if isinstance(asset, BankBase):
+            values = asset.get_values()
             bank_total += sum(values.values())
-        elif isinstance(checker, CardBase):
-            credit_value = checker.get_credit()
+        elif isinstance(asset, CardBase):
+            credit_value = asset.get_credit()
             values = OrderedDict([("Credit", credit_value)])
             card_total += abs(credit_value)
-            card_next += checker.get_next()
-        elif isinstance(checker, StockBrokerBase):
-            exercisable_value = checker.get_exercisable()
+            card_next += asset.get_next()
+        elif isinstance(asset, StockBrokerBase):
+            exercisable_value = asset.get_exercisable()
             values = OrderedDict([("Exercisable", exercisable_value)])
             stock_exercisable += exercisable_value
-            stock_vested += checker.get_vested()
-            stock_unvested += checker.get_unvested()
+            stock_vested += asset.get_vested()
+            stock_unvested += asset.get_unvested()
         else:
-            raise Exception("Unknown checker {} of type {}".format(checker, type(checker)))
+            raise Exception("Unknown asset {} of type {}".format(asset, type(asset)))
 
         values_with_prefix = OrderedDict(
             [("{} - {}".format(asset_section, key), value) for key, value in values.items()])
