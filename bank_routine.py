@@ -39,6 +39,7 @@ def main():
         wait_until_time(*update_time)
         print("-" * 20)
         print("updating", time.strftime("%d/%m/%y"))
+        print()
         try:
             update()
         except Exception as e:

@@ -1,9 +1,10 @@
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import BankBase, format_value
 
-class BankOtsar(AssetBase):
+
+class BankOtsar(BankBase):
     LOGIN_URL = "https://online.bankotsar.co.il/LoginServices/login2.do"
     HOME_URL = "https://online.bankotsar.co.il/wps/myportal/FibiMenu/Online"
     STOCK_URL = "https://online.bankotsar.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
@@ -30,4 +31,3 @@ class BankOtsar(AssetBase):
         bank = self._get_values_from_main_page()
         stock = self._get_stock_value()
         return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
-

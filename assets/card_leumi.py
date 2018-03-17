@@ -1,27 +1,25 @@
 import re
-from collections import OrderedDict
-from common import AssetBase, format_value
 from bank_leumi import BankLeumi
+from common import format_value, CardBase
 
 
-class CardLeumi(AssetBase):
-    TOTAL_RE = '<pCreditCardNeg>(.+?)</pCreditCardNeg>'
+class CardLeumi(CardBase):
+    TOTAL_RE = r'{\\"AccountType\\":\\"CREDITCARD\\",\\"TotalPerAccountType\\":(.+?)}'
 
-    def __init__(self, username, password):
-        super(CardLeumi, self).__init__(username, password)
+    def __init__(self, asset_section, **asset_options):
+        super(CardLeumi, self).__init__(asset_section, **asset_options)
+        self.__bank_instance = BankLeumi(asset_section, **asset_options)
 
     def _establish_session(self, username, password):
-        self._bank_instance = BankLeumi(username, password)
-        return self._bank_instance._session
+        return None
+
+    def get_credit(self):
+        val_matchobj = re.search(self.TOTAL_RE, self.__bank_instance.get_summery_page())
+        if val_matchobj is None:
+            return format_value("0", 'Credit')
+        val = val_matchobj.group(1)
+        credit = format_value(val, 'Credit')
+        return credit
 
     def get_next(self):
         return 0
-
-    def get_values(self):
-        summery_page = self._session.get(BankLeumi.HOME_URL).text
-        val_matchobj = re.search(self.TOTAL_RE, summery_page)
-        if val_matchobj is None:
-            return OrderedDict([("Credit", 0)])
-        val = val_matchobj.group(1).decode('base64')[5:]
-        credit = format_value(val, 'credit')
-        return OrderedDict([("Credit", 0-credit)])

@@ -2,7 +2,7 @@ from __future__ import print_function
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import BankBase, format_value
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -11,7 +11,8 @@ from selenium import webdriver
 import time
 import os
 
-class BankBeinleumi(AssetBase):
+
+class BankBeinleumi(BankBase):
     HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
     BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""

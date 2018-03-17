@@ -1,7 +1,6 @@
 import re
 import requests
-from collections import OrderedDict
-from common import AssetBase, format_value
+from common import CardBase, format_value, print_value
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -10,7 +9,7 @@ from selenium import webdriver
 import time
 import os
 
-class CardCal(AssetBase):
+class CardCal(CardBase):
     CARD_LOGIN_URL = "https://services.cal-online.co.il/card-holders/Screens/AccountManagement/Login.aspx"
     CARD_HOME_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/HomePage.aspx"
     CARD_DETAIL_URL = "https://services.cal-online.co.il/CARD-HOLDERS/SCREENS/AccountManagement/CardDetails.aspx"
@@ -56,9 +55,10 @@ class CardCal(AssetBase):
                       for card_details_query in card_details_queries]
         return sum(self._get_card_value(card_data.text, card_code) for card_data in card_datas)
 
+    def get_credit(self):
+        card_total = self._get_balance("lblTotalRemainingSum")
+        print_value(0 - card_total, "Credit")
+        return 0 - card_total
+
     def get_next(self):
         return self._get_balance("lblNextDebitSum")
-
-    def get_values(self):
-        card_total = self._get_balance("lblTotalRemainingSum")
-        return OrderedDict([("Credit", 0-card_total)])

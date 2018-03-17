@@ -5,3 +5,6 @@ from card_leumi import CardLeumi
 from bank_discount import BankDiscount
 from bank_beinleumi import BankBeinleumi
 from card_isracard import CardIsracard
+from stock_morgan_stanley import MorganStanleyStockPlanConnect
+from stock_esop import StockEsop
+from stock_fidelity import StockFidelityNetBenefits

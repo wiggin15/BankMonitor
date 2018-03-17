@@ -3,7 +3,7 @@
 
 try:
     from ConfigParser import ConfigParser
-except ImportError:     # Python 3.x
+except ImportError:  # Python 3.x
     from configparser import ConfigParser
 
 CONFIG_FILE_PATH = "config.ini"
@@ -18,6 +18,15 @@ def get_config_value(section, option):
 
 def get_config_int(section, option):
     return _config.getint(section, option)
+
+
+def get_config_options(section):
+    return dict(_config.items(section))
+
+
+def get_asset_sections():
+    all_sections = _config.sections()
+    return [x for x in all_sections if x not in {"general", "webserver"}]
 
 
 WEBSERVER_IP_ADDR = get_config_value("webserver", "ip")

@@ -1,11 +1,12 @@
 import re
 import requests
 from collections import OrderedDict
-from common import AssetBase, format_value
+from common import BankBase, format_value
+
 
 # username is in format <id>,<code>
 
-class BankDiscount(AssetBase):
+class BankDiscount(BankBase):
     LOGIN_URL = "https://start.telebank.co.il/LoginPages/LogonMarketing2?pagekey=home&multilang=he&t=p&bank=d"
     LOGIN_COOKIE_URL = "https://start.telebank.co.il/LoginPages/vs/vsen.jsp"
     LOGIN_POST_URL = "https://start.telebank.co.il/LoginPages/Dispatcher"
