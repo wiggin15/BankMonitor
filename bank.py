@@ -57,9 +57,10 @@ def main():
     print()
     print("All cards: {:,.2f} (next: {:,.2f})".format(card_total, card_next))
     print()
-    print("All stock brokers: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"
-          .format(stock_exercisable, stock_vested, stock_unvested))
-    print()
+    if stock_exercisable != 0 or stock_vested != 0 or stock_unvested != 0:
+        print("All stock brokers: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"
+              .format(stock_exercisable, stock_vested, stock_unvested))
+        print()
     print("Total: {:10,.2f}".format(bank_total - card_total + stock_exercisable))
     print()
 
