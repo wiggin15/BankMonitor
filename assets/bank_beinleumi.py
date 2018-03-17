@@ -14,8 +14,10 @@ import os
 
 class BankBeinleumi(BankBase):
     HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
+    BALANCE_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnAccountMngment/OnBalanceTrans/PrivateAccountFlow"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
-    BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
+    BALANCE_PATTERN = """<span class="main_balance[^>]*>\s+([^<]+)</span>"""
+    STOCK_PATTERN = '"fibi_amount">\s*(\S+?)\s*<'
 
     def _wait_for_id(self, html_id):
         indicator = EC.presence_of_element_located((By.ID, html_id))
@@ -54,7 +56,7 @@ class BankBeinleumi(BankBase):
         self._session.post(base_href + form_action, data=data)
 
     def _get_values_from_main_page(self):
-        main_html = self._session.get(self.HOME_URL).text
+        main_html = self._session.get(self.BALANCE_URL).text
         match_obj = re.search(self.BALANCE_PATTERN, main_html, re.DOTALL)
         if match_obj is None:
             return 0
@@ -63,7 +65,7 @@ class BankBeinleumi(BankBase):
 
     def _get_stock_value(self):
         stock_html = self._session.get(self.STOCK_URL).text
-        match_obj = re.search('"fibi_amount">\s*(\S+?)\s*<', stock_html)
+        match_obj = re.search(self.STOCK_PATTERN, stock_html)
         if match_obj is None:
             return 0
         NIA = match_obj.group(1)
