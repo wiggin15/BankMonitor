@@ -14,7 +14,7 @@ class BankLeumi(BankBase):
 
     def __init__(self, asset_section, **asset_options):
         super(BankLeumi, self).__init__(asset_section, **asset_options)
-        self._summery_page = self._session.get(self.HOME_URL).text
+        self._summary_page = self._session.get(self.HOME_URL).text
 
     def _establish_session(self, username, password):
         s = requests.Session()
@@ -24,17 +24,17 @@ class BankLeumi(BankBase):
         return s
 
     def _get_checking_balance(self):
-        val_matchobj = re.search(self.CHECKING_RE, self._summery_page)
+        val_matchobj = re.search(self.CHECKING_RE, self._summary_page)
         val = val_matchobj.group(1)
         return format_value(val, 'Checking')
 
     def _get_holdings_balance(self):
-        val_matchobj = re.search(self.HOLDINGS_RE, self._summery_page)
+        val_matchobj = re.search(self.HOLDINGS_RE, self._summary_page)
         val = val_matchobj.group(1)
         return format_value(val, 'Holdings')
 
     def _get_deposit_balance(self):
-        val_matchobj = re.search(self.DEPOSIT_RE, self._summery_page)
+        val_matchobj = re.search(self.DEPOSIT_RE, self._summary_page)
         if val_matchobj is None:
             return format_value("0", 'Deposit')
         val = val_matchobj.group(1)
@@ -45,5 +45,5 @@ class BankLeumi(BankBase):
                             ("Holdings", self._get_holdings_balance()),
                             ("Deposit", self._get_deposit_balance())])
 
-    def get_summery_page(self):
-        return self._summery_page
+    def get_summary_page(self):
+        return self._summary_page

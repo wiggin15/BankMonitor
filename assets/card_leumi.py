@@ -14,7 +14,7 @@ class CardLeumi(CardBase):
         return None
 
     def get_credit(self):
-        val_matchobj = re.search(self.TOTAL_RE, self.__bank_instance.get_summery_page())
+        val_matchobj = re.search(self.TOTAL_RE, self.__bank_instance.get_summary_page())
         if val_matchobj is None:
             return format_value("0", 'Credit')
         val = val_matchobj.group(1)
