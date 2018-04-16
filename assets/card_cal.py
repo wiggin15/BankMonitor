@@ -33,8 +33,9 @@ class CardCal(CardBase):
         self.selenium.find_element_by_name("userName").send_keys(username)
         self.selenium.find_element_by_name("userPassword").send_keys(password)
         self.selenium.find_element_by_css_selector(".form-footer .btn").submit()
-        time.sleep(10)
+        # wait until submission actually goes through and we get a new page
         self.selenium.switch_to.default_content()
+        self._wait_for_id("tabsContainer")
 
         session = requests.Session()
         for cookie in self.selenium.get_cookies():

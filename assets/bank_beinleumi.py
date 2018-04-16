@@ -17,7 +17,7 @@ class BankBeinleumi(BankBase):
     BALANCE_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnAccountMngment/OnBalanceTrans/PrivateAccountFlow"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
     BALANCE_PATTERN = """<span class="main_balance[^>]*>\s+([^<]+)</span>"""
-    STOCK_PATTERN = '"fibi_amount">\s*(\S+?)\s*<'
+    STOCK_PATTERN = 't1-tik-sum-num"\D+([^<]+)<'
 
     def _wait_for_id(self, html_id):
         indicator = EC.presence_of_element_located((By.ID, html_id))
@@ -33,8 +33,9 @@ class BankBeinleumi(BankBase):
         self.selenium.find_element_by_id("username").send_keys(username)
         self.selenium.find_element_by_id("password").send_keys(password)
         self.selenium.find_element_by_id("loginForm").submit()
-        time.sleep(10)
+        # wait until submission actually goes through and we get a new page
         self.selenium.switch_to.default_content()
+        self._wait_for_id("rightsideBar")
 
         session = requests.Session()
         for cookie in self.selenium.get_cookies():
