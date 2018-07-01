@@ -40,9 +40,9 @@ def memoize(func):
 
 @memoize
 def get_usd_to_ils_conversion_ratio():
-    api_result = requests.get("https://api.fixer.io/latest?base=USD&symbols=ILS").text
+    api_result = requests.get("https://free.currencyconverterapi.com/api/v5/convert?q=USD_ILS&compact=ultra").text
     api_data = json.loads(api_result)
-    return api_data["rates"]["ILS"]
+    return api_data["USD_ILS"]
 
 
 def convert_usd_to_ils(usd_value):
