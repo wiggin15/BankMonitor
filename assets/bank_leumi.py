@@ -3,7 +3,7 @@ from collections import OrderedDict
 import requests
 
 from assets import stats
-from common import BankBase, format_value
+from common import BankBase, format_value, HEADERS_USER_AGENT
 
 
 class BankLeumi(BankBase):
@@ -16,13 +16,13 @@ class BankLeumi(BankBase):
 
     def __init__(self, asset_section, **asset_options):
         super(BankLeumi, self).__init__(asset_section, **asset_options)
-        self.__summery_page = self._session.get(self.HOME_URL).text
+        self.__summery_page = self._session.get(self.HOME_URL, headers=HEADERS_USER_AGENT).text
 
     def _establish_session(self, username, password):
         s = requests.Session()
-        s.get(self.LOGIN_URL)
+        s.get(self.LOGIN_URL, headers=HEADERS_USER_AGENT)
         post_data = {'system': 'test', 'uid': username, 'password': password, 'command': 'login'}
-        s.post(self.LOGIN_POST_URL, data=post_data)
+        s.post(self.LOGIN_POST_URL, data=post_data, headers=HEADERS_USER_AGENT)
         return s
 
     def __get_checking_balance(self):

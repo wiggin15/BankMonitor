@@ -8,6 +8,10 @@ import requests
 
 from assets import stats
 
+HEADERS_USER_AGENT = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100"
+}
+
 
 def print_value(val, print_name):
     print("{}: {:10,.2f}".format(print_name, val))
