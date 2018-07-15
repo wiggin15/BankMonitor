@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 import requests
 from common import CardBase, format_value, print_value
@@ -12,7 +13,8 @@ class CardCal(CardBase):
     def _establish_session(self, username, password):
         s = requests.Session()
         post_data = {"username": username, "password": password}
-        s.post(self.CARD_LOGIN_URL, data=post_data)
+        result = s.post(self.CARD_LOGIN_URL, data=post_data).text
+        assert u"ניהול ההוצאות בכרטיס האשראי" in result
         return s
 
     def __get_card_value(self, card_data, card_code, print_name=None):
@@ -24,6 +26,7 @@ class CardCal(CardBase):
         card_details_queries = re.findall("(\?cardUniqueID=\d+)", home_data.text)
         card_datas = [self._session.get(self.CARD_DETAIL_URL + card_details_query)
                       for card_details_query in card_details_queries]
+        assert len(card_datas) > 0
         return sum(self.__get_card_value(card_data.text, card_code) for card_data in card_datas)
 
     def _get_credit(self):

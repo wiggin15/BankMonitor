@@ -1,3 +1,4 @@
+# coding=utf-8
 import re
 from collections import OrderedDict
 import requests
@@ -17,6 +18,7 @@ class BankLeumi(BankBase):
     def __init__(self, asset_section, **asset_options):
         super(BankLeumi, self).__init__(asset_section, **asset_options)
         self.__summery_page = self._session.get(self.HOME_URL, headers=HEADERS_USER_AGENT).text
+        assert u"ברוך הבא, כניסתך האחרונה" in self.__summery_page
 
     def _establish_session(self, username, password):
         s = requests.Session()
