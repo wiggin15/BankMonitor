@@ -24,7 +24,7 @@ def main():
     asset_sections = get_asset_sections()
     for asset_section in asset_sections:
         print("{}:".format(asset_section))
-        asset = get_asset_checker(asset_section)
+        asset = get_asset(asset_section)
         values = asset.get_values(all_stats)
         values_with_prefix = OrderedDict(
             [("{} - {}".format(asset_section, key), value) for key, value in values.items()])
