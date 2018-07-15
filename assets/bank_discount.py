@@ -22,7 +22,7 @@ class BankDiscount(BankBase):
         MAGIC_COOKIE_NAME = "G4CmE"  # cookie containing RSA public key for encryption
         MAGIC_COOKIE_PATTERN = "3ba782e1"  # magic string used as a splitter to find the RSA key in cookie
         RSA_EXPONENT = "10001"  # constant exponent used for RSA public key
-        PASSWORD_PRE_ENC_PREFIX = "[ENC]"  # added to password before encrypting it
+        PASSWORD_PRE_ENC_PREFIX = "[ENC]"   # added to password before encrypting it
         PASSWORD_DELIMETER = "|@|"
         PASSWORD_SUFFIX = "|(#)|"
 
@@ -35,7 +35,7 @@ class BankDiscount(BankBase):
         pwd = PASSWORD_PRE_ENC_PREFIX + pwd
         res = ""
         for i in range(0, len(pwd), 7):
-            part = pwd[i:i + 7]
+            part = pwd[i:i+7]
             res += cipher.encrypt(part).encode("hex") + PASSWORD_DELIMETER
         res = res[:-3] + PASSWORD_SUFFIX
         return res

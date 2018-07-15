@@ -17,7 +17,7 @@ class BankLeumi(BankBase):
 
     def __init__(self, asset_section, **asset_options):
         super(BankLeumi, self).__init__(asset_section, **asset_options)
-        self.__summery_page = self._session.get(self.HOME_URL, headers=HEADERS_USER_AGENT).text
+        self.__summary_page = self._session.get(self.HOME_URL, headers=HEADERS_USER_AGENT).text
         assert u"ברוך הבא, כניסתך האחרונה" in self.__summery_page
 
     def _establish_session(self, username, password):
@@ -28,17 +28,17 @@ class BankLeumi(BankBase):
         return s
 
     def __get_checking_balance(self):
-        val_matchobj = re.search(self.CHECKING_RE, self.__summery_page)
+        val_matchobj = re.search(self.CHECKING_RE, self.__summary_page)
         val = val_matchobj.group(1)
         return format_value(val, 'Checking')
 
     def __get_holdings_balance(self):
-        val_matchobj = re.search(self.HOLDINGS_RE, self.__summery_page)
+        val_matchobj = re.search(self.HOLDINGS_RE, self.__summary_page)
         val = val_matchobj.group(1)
         return format_value(val, 'Holdings')
 
     def __get_deposit_balance(self):
-        val_matchobj = re.search(self.DEPOSIT_RE, self.__summery_page)
+        val_matchobj = re.search(self.DEPOSIT_RE, self.__summary_page)
         if val_matchobj is None:
             return format_value("0", 'Deposit')
         val = val_matchobj.group(1)
@@ -52,5 +52,5 @@ class BankLeumi(BankBase):
         stats_dict.get_stat(stats.StatType.STAT_STOCK_BROKER).add(holdings)
         return OrderedDict([("Checking", checking), ("Holdings", holdings), ("Deposit", deposit)])
 
-    def get_summery_page(self):
-        return self.__summery_page
+    def get_summary_page(self):
+        return self.__summary_page

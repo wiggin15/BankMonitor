@@ -8,7 +8,7 @@ from common import BankBase, format_value, print_value
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 import time
 import os
@@ -16,11 +16,13 @@ import os
 
 class BankBeinleumi(BankBase):
     HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
+    BALANCE_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnAccountMngment/OnBalanceTrans/PrivateAccountFlow"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
-    BALANCE_PATTERN = """PrivateAccountFlow">.+?<span dir="ltr" class="current_balance\s+\S+\s+([^<]+)</span>"""
+    BALANCE_PATTERN = """<span class="main_balance[^>]*>\s+([^<]+)</span>"""
+    STOCK_PATTERN = 't1-tik-sum-num"\D+([^<]+)<'
 
     def _wait_for_id(self, html_id):
-        indicator = expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "#" + html_id))
+        indicator = EC.presence_of_element_located((By.ID, html_id))
         WebDriverWait(self.selenium, 10).until(indicator)
 
     def _establish_session(self, username, password):
@@ -32,9 +34,10 @@ class BankBeinleumi(BankBase):
         self._wait_for_id("username")
         self.selenium.find_element_by_id("username").send_keys(username)
         self.selenium.find_element_by_id("password").send_keys(password)
-        self.selenium.find_element_by_id("form").submit()
-        time.sleep(10)
+        self.selenium.find_element_by_id("loginForm").submit()
+        # wait until submission actually goes through and we get a new page
         self.selenium.switch_to.default_content()
+        self._wait_for_id("rightsideBar")
 
         session = requests.Session()
         for cookie in self.selenium.get_cookies():
@@ -51,15 +54,13 @@ class BankBeinleumi(BankBase):
     def _switch_account(self, account):
         main_html = self._session.get(self.HOME_URL).text
         base_href = re.search('<base href="([^"]+)">', main_html).group(1)
-        form_action = re.search(
-            '<form method="post" action="([^"]+)" name="refreshPortletForm" id="refreshPortletForm">', main_html) \
-            .group(1)
+        form_action = re.search('<form method="post" action="([^"]+)" name="refreshPortletForm" id="refreshPortletForm">', main_html).group(1)
         data = dict(PortletForm_ACTION_NAME="changeAccount", portal_current_account=account)
         self._session.post(base_href + form_action, data=data)
 
     def _get_values_from_main_page(self):
-        main_html = self._session.get(self.HOME_URL).text
-        match_obj = re.search(self.BALANCE_PATTERN, main_html)
+        main_html = self._session.get(self.BALANCE_URL).text
+        match_obj = re.search(self.BALANCE_PATTERN, main_html, re.DOTALL)
         if match_obj is None:
             return 0
         OSH = match_obj.group(1)
@@ -67,7 +68,7 @@ class BankBeinleumi(BankBase):
 
     def _get_stock_value(self):
         stock_html = self._session.get(self.STOCK_URL).text
-        match_obj = re.search('"fibi_amount">\s*(\S+?)\s*<', stock_html)
+        match_obj = re.search(self.STOCK_PATTERN, stock_html)
         if match_obj is None:
             return 0
         NIA = match_obj.group(1)

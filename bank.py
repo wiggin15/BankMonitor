@@ -3,17 +3,16 @@
 
 from __future__ import print_function
 from collections import OrderedDict
-# noinspection PyUnresolvedReferences
-from assets import *
 from assets import stats
 from assets.common import all_memoize_caches
 from config import get_config_value, get_asset_sections, get_config_options
+import assets
 
 
-def get_asset_checker(asset_section):
+def get_asset(asset_section):
     class_name = get_config_value(asset_section, "type")
     asset_options = get_config_options(asset_section)
-    return globals()[class_name](asset_section, **asset_options)
+    return getattr(assets, class_name)(asset_section, **asset_options)
 
 
 def main():
@@ -25,8 +24,8 @@ def main():
     asset_sections = get_asset_sections()
     for asset_section in asset_sections:
         print("{}:".format(asset_section))
-        checker = get_asset_checker(asset_section)
-        values = checker.get_values(all_stats)
+        asset = get_asset_checker(asset_section)
+        values = asset.get_values(all_stats)
         values_with_prefix = OrderedDict(
             [("{} - {}".format(asset_section, key), value) for key, value in values.items()])
         all_values.update(values_with_prefix)

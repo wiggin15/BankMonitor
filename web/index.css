@@ -8,7 +8,7 @@ table.summary th {
 }
 
 table.summary tr td {
-    padding-right: 10px;
+    padding-right: 20px;
     text-align: right;
     white-space: nowrap;
 }
@@ -82,19 +82,20 @@ table.summary tr td:first-child, table.summary th:first-child {
 @media (orientation: landscape) {
     #container {
         position: absolute;
-        /* 700px: size of #legend and #summary on the right; 16px: the margin of body; 15px: additional padding */
-        width: calc(100% - 700px - 16px - 15px);
+        /* 400px: size of #legend and #summary on the right; 16px: the margin of body; 15px: additional padding */
+        width: calc(100% - 400px - 16px - 15px);
         height: calc(100% - 10px);
     }
 
     #legend, #summary {
         position: absolute;
         right: 0px;
-        width: 700px;
+        width: 400px;
     }
 
     #legend {
-        top: 300px;
+        /* 160px reserved for #summary and 30px padding */
+        top: 190px;
     }
 
     #summary {
