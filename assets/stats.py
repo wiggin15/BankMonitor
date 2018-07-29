@@ -32,63 +32,55 @@ class StatBank(StatBase):
 
     def __init__(self):
         super(StatBank, self).__init__()
-        self.__total = 0
 
     def add(self, amount):
-        self.__total += amount
         self._add_to_total(amount)
 
     def print_stat(self):
-        print("All banks: {:,.2f}".format(self.__total))
+        print("All banks: {:,.2f}".format(self.get_total_amount()))
 
 
 class StatCard(StatBase):
 
     def __init__(self):
         super(StatCard, self).__init__()
-        self.__total = 0
         self.__next = 0
 
     def add(self, amount, next_amount=0):
-        self.__total += abs(amount)
+        self._add_to_total(amount)
         self.__next += next_amount
-        self._add_to_total(abs(amount))
 
     def print_stat(self):
-        print("All cards: {:,.2f} (next: {:,.2f})".format(self.__total, self.__next))
+        print("All cards: {:,.2f} (next: {:,.2f})".format(self.get_total_amount(), self.__next))
 
 
 class StatStockBroker(StatBase):
 
     def __init__(self):
         super(StatStockBroker, self).__init__()
-        self.__total = 0
 
     def add(self, amount):
-        self.__total += amount
         self._add_to_total(amount)
 
     def print_stat(self):
-        print("All stocks: {:,.2f}".format(self.__total))
+        print("All stocks: {:,.2f}".format(self.get_total_amount()))
 
 
 class StatWorkStock(StatBase):
 
     def __init__(self):
         super(StatWorkStock, self).__init__()
-        self.__exercisable = 0
         self.__vested = 0
         self.__unvested = 0
 
     def add(self, exercisable, vested=0, unvested=0):
-        self.__exercisable += exercisable
+        self._add_to_total(exercisable)
         self.__vested += vested
         self.__unvested += unvested
-        self._add_to_total(exercisable)
 
     def print_stat(self):
         print("All work stocks: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"
-              .format(self.__exercisable, self.__vested, self.__unvested))
+              .format(self.get_total_amount(), self.__vested, self.__unvested))
 
 
 class StatType(Enum):

@@ -35,4 +35,5 @@ class CardCal(CardBase):
         return 0 - card_total
 
     def _get_next(self):
-        return self.__get_balance("lblNextDebitSum")
+        card_next = self.__get_balance("lblNextDebitSum")
+        return 0 - card_next
