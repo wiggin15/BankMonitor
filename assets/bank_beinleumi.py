@@ -11,13 +11,15 @@ from selenium import webdriver
 import time
 import os
 
+headers = {"User-Agent": "Mozilla/5.0"}
+
 
 class BankBeinleumi(BankBase):
     HOME_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online"
     BALANCE_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnAccountMngment/OnBalanceTrans/PrivateAccountFlow"
     STOCK_URL = "https://online.fibi.co.il/wps/myportal/FibiMenu/Online/OnCapitalMarket/OnMyportfolio/AuthSecuritiesPrtfMyPFEquities"
     BALANCE_PATTERN = """<span class="main_balance[^>]*>\s+([^<]+)</span>"""
-    STOCK_PATTERN = 't1-tik-sum-num"\D+([^<]+)<'
+    STOCK_PATTERN = '"fibi_amount">\s*(\S+?)\s*<'
 
     def _wait_for_id(self, html_id):
         indicator = EC.presence_of_element_located((By.ID, html_id))
@@ -46,18 +48,18 @@ class BankBeinleumi(BankBase):
         return session
 
     def _get_accounts(self):
-        main_html = self._session.get(self.HOME_URL).text
+        main_html = self._session.get(self.HOME_URL, headers=headers).text
         return re.findall('option value="([^"]+)"', main_html)
 
     def _switch_account(self, account):
-        main_html = self._session.get(self.HOME_URL).text
+        main_html = self._session.get(self.HOME_URL, headers=headers).text
         base_href = re.search('<base href="([^"]+)">', main_html).group(1)
         form_action = re.search('<form method="post" action="([^"]+)" name="refreshPortletForm" id="refreshPortletForm">', main_html).group(1)
         data = dict(PortletForm_ACTION_NAME="changeAccount", portal_current_account=account)
-        self._session.post(base_href + form_action, data=data)
+        self._session.post(base_href + form_action, data=data, headers=headers)
 
     def _get_values_from_main_page(self):
-        main_html = self._session.get(self.BALANCE_URL).text
+        main_html = self._session.get(self.BALANCE_URL, headers=headers).text
         match_obj = re.search(self.BALANCE_PATTERN, main_html, re.DOTALL)
         if match_obj is None:
             return 0
@@ -65,7 +67,7 @@ class BankBeinleumi(BankBase):
         return format_value(OSH)
 
     def _get_stock_value(self):
-        stock_html = self._session.get(self.STOCK_URL).text
+        stock_html = self._session.get(self.STOCK_URL, headers=headers).text
         match_obj = re.search(self.STOCK_PATTERN, stock_html)
         if match_obj is None:
             return 0
