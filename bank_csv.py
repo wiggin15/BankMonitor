@@ -5,8 +5,7 @@ from __future__ import print_function
 import time
 import os
 import bank
-import web
-from config import WEBSERVER_IP_ADDR, WEBSERVER_PORT, CSV_FILE_PATH
+from config import CSV_FILE_PATH
 from collections import OrderedDict
 
 
@@ -23,18 +22,5 @@ def update():
         f.write(new_content)
 
 
-def open_browser():
-    import webbrowser
-    webbrowser.open("http://{}:{}".format(WEBSERVER_IP_ADDR, WEBSERVER_PORT))
-
-
-def main():
-    update()
-    print("Starting webserver...")
-    import threading
-    threading.Timer(2, open_browser).start()
-    web.main()
-
-
 if __name__ == '__main__':
-    main()
+    update()
