@@ -105,9 +105,9 @@ function reload_summary() {
         var current_data = series.options.data[summary_index][1];
         var prev_data = series.options.data[find_next_non_null_index(summary_index, -1)][1];
         var tr = $("#summary tr:nth-child(" + (parseInt(key)+2) + ")");
-        $("td:nth-child(2)", tr).text(current_data.toFixed(2));
-        $("td:nth-child(3)", tr).text(prev_data.toFixed(2));
-        $("td:nth-child(4)", tr).text((current_data - prev_data).toFixed(2));
+        $("td:nth-child(2)", tr).text(current_data.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $("td:nth-child(3)", tr).text(prev_data.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+        $("td:nth-child(4)", tr).text((current_data - prev_data).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
     }
     var current_date = window.chart.series["0"].options.data[summary_index][0];
     var prev_date = window.chart.series["0"].options.data[find_next_non_null_index(summary_index, -1)][0];
