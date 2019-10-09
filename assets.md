@@ -3,7 +3,7 @@ The following banks can be defined in config.ini under `[bank]`
 * BankOtsar
 * BankLeumi
 * BankDiscount
-  * requires  *pycrypto* dependency
+  * See Selenium section below for dependencies
   * 'username' should be in format '\<user id\>,\<user code\>'
 * BankBeinleumi
   * See Selenium section below for dependencies
@@ -26,5 +26,5 @@ The following is partial explanation on how to set it up.
 * Install FireFox (on Ubuntu, use `sudo apt-get install firefox-mozilla-build`)
 * Install "geckodriver"
   * Download from https://github.com/mozilla/geckodriver/releases
-  * On Ubuntu, untar and move to /usr/local/bin)
+  * On Ubuntu, untar and move to /usr/local/bin
 * To run selenium in a virtual display on Linux systems, install "xvfb" (e.g. with apt-get), and make sure xvfb will run on startup by configuring an init script and running update-rc.

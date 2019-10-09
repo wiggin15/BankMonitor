@@ -3,7 +3,7 @@ from the web every day and making neat graphs.
 
 Usage
 -----
-* **dependencies**: The scripts need *Flask* and *requests* to work
+* **dependencies**: run `pip install -r requirements.txt` to install required dependencies.
 * **configuration**: The file `config.ini` contains the configuration for the scripts.
   * Edit the bank and credit sections: set the bank and credit card sites you are using, and set the username and
   password for each. See assets.md for a list of supported banks and credit cards.
