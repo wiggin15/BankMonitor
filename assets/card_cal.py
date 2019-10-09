@@ -6,8 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as WebDriverOptions
 import time
-import os
 
 class CardCal(CardBase):
     CARD_LOGIN_URL = "https://services.cal-online.co.il/card-holders/Screens/AccountManagement/Login.aspx"
@@ -24,24 +24,26 @@ class CardCal(CardBase):
         WebDriverWait(self.selenium, 10).until(indicator)
 
     def _establish_session(self, username, password):
-        os.environ["DISPLAY"] = ":1"
-        self.selenium = webdriver.Firefox()
-        self.selenium.get(self.CARD_LOGIN_URL)
-        self._wait_for_id("calconnectIframe")
-        self.selenium.switch_to.frame(self.selenium.find_element_by_id("calconnectIframe"))
-        self._wait_for_name("userName")
-        self.selenium.find_element_by_name("userName").send_keys(username)
-        self.selenium.find_element_by_name("userPassword").send_keys(password)
-        self.selenium.find_element_by_css_selector(".form-footer .btn").submit()
-        # wait until submission actually goes through and we get a new page
-        self.selenium.switch_to.default_content()
-        self._wait_for_id("tabsContainer")
+        options = WebDriverOptions()
+        options.headless = True
+        self.selenium = webdriver.Firefox(options=options)
+        try:
+            self.selenium.get(self.CARD_LOGIN_URL)
+            self._wait_for_id("calconnectIframe")
+            self.selenium.switch_to.frame(self.selenium.find_element_by_id("calconnectIframe"))
+            self._wait_for_name("userName")
+            self.selenium.find_element_by_name("userName").send_keys(username)
+            self.selenium.find_element_by_name("userPassword").send_keys(password)
+            self.selenium.find_element_by_css_selector(".form-footer .btn").submit()
+            # wait until submission actually goes through and we get a new page
+            self.selenium.switch_to.default_content()
+            self._wait_for_id("tabsContainer")
 
-        session = requests.Session()
-        for cookie in self.selenium.get_cookies():
-            session.cookies.set(cookie['name'], cookie['value'])
-
-        self.selenium.quit()
+            session = requests.Session()
+            for cookie in self.selenium.get_cookies():
+                session.cookies.set(cookie['name'], cookie['value'])
+        finally:
+            self.selenium.quit()
 
         return session
 
