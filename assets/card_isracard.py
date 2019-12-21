@@ -1,6 +1,6 @@
 import json
 import requests
-from common import CardBase, format_value
+from .common import CardBase, format_value
 
 
 class CardIsracard(CardBase):

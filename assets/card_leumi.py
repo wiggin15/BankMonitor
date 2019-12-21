@@ -1,6 +1,6 @@
 import re
-from bank_leumi import BankLeumi
-from common import format_value, CardBase
+from .bank_leumi import BankLeumi
+from .common import format_value, CardBase
 
 
 class CardLeumi(CardBase):

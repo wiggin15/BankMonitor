@@ -1,7 +1,7 @@
 import re
 from collections import OrderedDict
 import requests
-from common import BankBase, format_value
+from .common import BankBase, format_value
 
 
 class BankLeumi(BankBase):

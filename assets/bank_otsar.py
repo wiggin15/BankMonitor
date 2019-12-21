@@ -1,7 +1,7 @@
 import re
 import requests
 from collections import OrderedDict
-from common import BankBase, format_value
+from .common import BankBase, format_value
 
 
 class BankOtsar(BankBase):

@@ -1,6 +1,6 @@
 import re
 import requests
-from common import CardBase, format_value, print_value
+from .common import CardBase, format_value, print_value
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
