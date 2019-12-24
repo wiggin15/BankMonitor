@@ -2,7 +2,7 @@ from __future__ import print_function
 import json
 import requests
 from datetime import datetime
-from assets.common import StockBrokerBase, get_stock_value, convert_usd_to_ils, print_value
+from .common import StockBrokerBase, get_stock_value, convert_usd_to_ils, print_value
 
 
 class StockEsop(StockBrokerBase):
@@ -29,10 +29,10 @@ class StockEsop(StockBrokerBase):
         # This is a breakdown of the request, for future generations:
         # 5| # Protocol version
         # 0| # No flags
-        # 9| # 9 strings in the following table (access is 1-based)
+        # 10| # 10 strings in the following table (access is 1-based)
         #
         # https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/|
-        # AC2E99386390CA9EE9D422978B9DE88C|
+        # 92A5BA4C9CF467B416F06DC30C81A0D6|
         # cmr.client.plan.services.OptionsPlanDetailsService|
         # getSpecificOptionsPlanDetailData|
         # java.util.Date/1659716317|
@@ -40,23 +40,25 @@ class StockEsop(StockBrokerBase):
         # J|
         # java.lang.String/2004016611|
         # ********| # Username
+        # 4262230416583055175|
         #
         # 1|2|3|4| # Call a method
-        # 4| # The method has 4 parameters
-        # 5|6|7|8| # Parameter types - Date, int, long, String
+        # 5| # The method has 5 parameters
+        # 5|6|7|8|8| # Parameter types - Date, int, long, String, String
         # 5|4085046400|1503238553600| # Start of current day, as the low int and high int
-        # 0| # Int with value 0
-        # 0|0| # Long with value 0 as two ints
+        # 3| # Int with value 3
+        # 2040253829|0| # Long with value 2040253829 as two ints
         # 9| # String with username from string table
+        # 10| # String with ? from string table
         timestamp = int((datetime.utcnow() - datetime(1970, 1, 1)).total_seconds() * 1000)
         timestamp_high = timestamp & 0xffffffff00000000
         timestamp_low = timestamp & 0xffffffff
-        post_data = "5|0|9|https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/|AC2E99386390CA9EE9D422978B9DE88C|cmr.client.plan.services.OptionsPlanDetailsService|getSpecificOptionsPlanDetailData|java.util.Date/1659716317|I|J|java.lang.String/2004016611|{}|1|2|3|4|4|5|6|7|8|5|{}|{}|0|0|0|9|" \
+        post_data = "5|0|10|https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/|92A5BA4C9CF467B416F06DC30C81A0D6|cmr.client.plan.services.OptionsPlanDetailsService|getSpecificOptionsPlanDetailData|java.util.Date/1659716317|I|J|java.lang.String/2004016611|{}|4262230416583055175|1|2|3|4|5|5|6|7|8|8|5|{}|{}|3|2040253829|0|9|10|" \
             .format(self._username, timestamp_high, timestamp_low)
 
         headers = {"Content-Type": "text/x-gwt-rpc; charset=UTF-8",
                    "X-GWT-Module-Base": "https://www.capital-m.co.il/C-MClient/theme/js/gwt/optionsPlanDetails/",
-                   "X-GWT-Permutation": "1781C0258DE0C55897A4212CAA3FC838"}
+                   "X-GWT-Permutation": "656854B048D9A3E6E7597BBB64C37420"}
 
         result = self._session.post(self.SERVLET_URL, data=post_data, headers=headers).text
         assert result.startswith("//OK"), "Result is {}".format(result)

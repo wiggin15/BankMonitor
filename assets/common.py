@@ -5,6 +5,10 @@ from abc import ABCMeta, abstractmethod
 
 import requests
 
+HEADERS_USER_AGENT = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36"
+}
+
 
 def print_value(val, print_name):
     print("{}: {:10,.2f}".format(print_name, val))
@@ -37,9 +41,10 @@ def memoize(func):
 
 @memoize
 def get_usd_to_ils_conversion_ratio():
-    api_result = requests.get("https://api.fixer.io/latest?base=USD&symbols=ILS").text
+    api_result = requests.get(
+        "https://free.currencyconverterapi.com/api/v5/convert?q=USD_ILS&compact=ultra&apiKey=207f0d8f1a97997f891a").text
     api_data = json.loads(api_result)
-    return api_data["rates"]["ILS"]
+    return api_data["USD_ILS"]
 
 
 def convert_usd_to_ils(usd_value):
