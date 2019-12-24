@@ -12,10 +12,10 @@ class CardLeumi(CardBase):
     def _establish_session(self, username, password):
         return None
 
-    def get_credit(self):
+    def _get_credit(self):
         credit = self.__bank_instance.get_total_values()['Creditcard']
         print_value(credit, 'Credit')
         return credit
 
-    def get_next(self):
+    def _get_next(self):
         return 0

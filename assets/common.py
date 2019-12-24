@@ -2,8 +2,11 @@ from __future__ import print_function
 
 import json
 from abc import ABCMeta, abstractmethod
+from collections import OrderedDict
 
 import requests
+
+from . import stats
 
 HEADERS_USER_AGENT = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36"
@@ -65,6 +68,12 @@ def get_stock_value(stock_name):
 class AssetBase(object):
     __metaclass__ = ABCMeta
 
+    @abstractmethod
+    def get_values(self, stats_dict):
+        raise NotImplementedError()
+
+
+class AuthenticatedAssetBase(AssetBase):
     def __init__(self, asset_section, user=None, password=None, **asset_options):
         self._username = user
         self._password = password
@@ -78,31 +87,58 @@ class AssetBase(object):
         raise NotImplementedError()
 
 
-class BankBase(AssetBase):
+class BankBase(AuthenticatedAssetBase):
+    pass
+
+
+class CardBase(AuthenticatedAssetBase):
     @abstractmethod
-    def get_values(self):
-        raise NotImplementedError()
-
-
-class CardBase(AssetBase):
-    @abstractmethod
-    def get_credit(self):
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_next(self):
-        raise NotImplementedError()
-
-
-class StockBrokerBase(AssetBase):
-    @abstractmethod
-    def get_exercisable(self):
+    def _get_credit(self):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_vested(self):
+    def _get_next(self):
+        raise NotImplementedError()
+
+    def get_values(self, stats_dict):
+        credit_value = self._get_credit()
+        card_next = self._get_next()
+        stats_dict[stats.StatType.STAT_CARD].add(credit_value, card_next)
+        return OrderedDict([("Credit", credit_value)])
+
+
+class WorkStockBase(AuthenticatedAssetBase):
+    @abstractmethod
+    def _get_exercisable(self):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_unvested(self):
+    def _get_vested(self):
         raise NotImplementedError()
+
+    @abstractmethod
+    def _get_unvested(self):
+        raise NotImplementedError()
+
+    def get_values(self, stats_dict):
+        exercisable = self._get_exercisable()
+        vested = self._get_vested()
+        unvested = self._get_unvested()
+        stats_dict[stats.StatType.STAT_WORK_STOCK].add(exercisable, vested, unvested)
+        return OrderedDict([("Exercisable", exercisable)])
+
+
+class CommodityBase(AssetBase):
+    def __init__(self, asset_section, amount=None, **asset_options):
+        if not amount:
+            raise Exception("{} amount missing".format(asset_section.capitalize()))
+        self._amount = float(amount)
+
+    @abstractmethod
+    def _get_value(self):
+        raise NotImplementedError()
+
+    def get_values(self, stats_dict):
+        value = self._get_value()
+        stats_dict[stats.StatType.STAT_NONE].add(value)
+        return OrderedDict([("Value", value)])

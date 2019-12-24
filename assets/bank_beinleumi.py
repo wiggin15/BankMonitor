@@ -2,7 +2,8 @@ from __future__ import print_function
 import re
 import requests
 from collections import OrderedDict
-from .common import BankBase, format_value
+from . import stats
+from .common import BankBase, format_value, print_value
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -54,7 +55,9 @@ class BankBeinleumi(BankBase):
     def _switch_account(self, account):
         main_html = self._session.get(self.HOME_URL, headers=headers).text
         base_href = re.search('<base href="([^"]+)">', main_html).group(1)
-        form_action = re.search('<form method="post" action="([^"]+)" name="refreshPortletForm" id="refreshPortletForm">', main_html).group(1)
+        form_action = re.search(
+            '<form method="post" action="([^"]+)" name="refreshPortletForm" id="refreshPortletForm">', main_html).group(
+            1)
         data = dict(PortletForm_ACTION_NAME="changeAccount", portal_current_account=account)
         self._session.post(base_href + form_action, data=data, headers=headers)
 
@@ -74,13 +77,15 @@ class BankBeinleumi(BankBase):
         NIA = match_obj.group(1)
         return format_value(NIA)
 
-    def get_values(self):
+    def get_values(self, stats_dict):
         bank = 0
         stock = 0
         for account in self._get_accounts():
             self._switch_account(account)
             bank += self._get_values_from_main_page()
             stock += self._get_stock_value()
-        print("OSH: {:10,.2f}".format(bank))
-        print("NIA: {:10,.2f}".format(stock))
+        print_value(bank, "OSH")
+        print_value(stock, "NIA")
+        stats_dict[stats.StatType.STAT_BANK].add(bank)
+        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(stock)
         return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])

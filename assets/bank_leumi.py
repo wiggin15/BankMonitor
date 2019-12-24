@@ -3,7 +3,10 @@ import collections
 import json
 import re
 from collections import OrderedDict
+
 import requests
+
+from . import stats
 from .common import BankBase, HEADERS_USER_AGENT, print_value
 
 
@@ -75,10 +78,12 @@ class BankLeumi(BankBase):
         s.post(self.LOGIN_POST_URL, data=post_data, headers=HEADERS_USER_AGENT)
         return s
 
-    def get_values(self):
+    def get_values(self, stats_dict):
         checking = self.__total_values['Checking']
         holdings = self.__total_values['Holdings']
         deposit = self.__total_values['Deposit']
+        stats_dict[stats.StatType.STAT_BANK].add(checking + deposit)
+        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(holdings)
         return OrderedDict([("Checking", checking), ("Holdings", holdings), ("Deposit", deposit)])
 
     def get_total_values(self):

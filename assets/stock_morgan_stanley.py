@@ -1,9 +1,9 @@
 import json
 import requests
-from .common import StockBrokerBase, convert_usd_to_ils, print_value
+from .common import WorkStockBase, convert_usd_to_ils, print_value
 
 
-class MorganStanleyStockPlanConnect(StockBrokerBase):
+class MorganStanleyStockPlanConnect(WorkStockBase):
     LOGIN_URL = "https://stockplanconnect.morganstanley.com/cesreg/Home/Home.html#/home"
     LOGIN_POST_URL = "https://stockplanconnect.morganstanley.com/app-bin/cesreg/spc/login/validateLogin"
     SUMMARY_URL = "https://stockplanconnect.morganstanley.com/app-bin/spc/ba/sps/summary?format=json"
@@ -31,11 +31,11 @@ class MorganStanleyStockPlanConnect(StockBrokerBase):
         print_value(value_ils, "{} final".format(print_name))
         return value_ils
 
-    def get_exercisable(self):
+    def _get_exercisable(self):
         return self.get_summary_value("totalMktvalue", "Exercisable")
 
-    def get_vested(self):
+    def _get_vested(self):
         return 0
 
-    def get_unvested(self):
+    def _get_unvested(self):
         return self.get_summary_value("totalUnvestedvalue", "Unvested")

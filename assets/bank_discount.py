@@ -1,12 +1,14 @@
-import re
 import requests
 from collections import OrderedDict
-from .common import BankBase, format_value
+
+from . import stats
+from .common import BankBase, print_value
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as WebDriverOptions
+
 
 # username is in format <id>,<code>
 
@@ -42,14 +44,18 @@ class BankDiscount(BankBase):
 
         return session
 
-    def get_values(self):
+    def get_values(self, stats_dict):
         accounts_data = self._session.get(self.ACCOUNTS_JSON_URL).json()
         account_numbers = [account['FormatAccountID'] for account in accounts_data['UserAccountsData']['UserAccounts']]
         bank = 0
         stock = 0
         for account_number in account_numbers:
-            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number)).json()['AccountDetails']['AccountBalance']
-            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}).json()['CurrentSecuritiesPortfolio']['PortfolioValue']
-        print("OSH: {:10,.2f}".format(bank))
-        print("NIA: {:10,.2f}".format(stock))
+            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number)).json()['AccountDetails'][
+                'AccountBalance']
+            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}).json()[
+                'CurrentSecuritiesPortfolio']['PortfolioValue']
+        print_value(bank, "OSH")
+        print_value(stock, "NIA")
+        stats_dict[stats.StatType.STAT_BANK].add(bank)
+        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(stock)
         return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
