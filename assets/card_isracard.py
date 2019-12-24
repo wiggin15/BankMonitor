@@ -42,9 +42,7 @@ class CardIsracard(CardBase):
             "Sisma": password,
         }
         post_data_str = json.dumps(data)
-        result_str = s.post(self.LOGIN_POST_URL, data=post_data_str, headers=headers).text
-        result = json.loads(result_str)
-        assert result["status"] == "1"
+        s.post(self.LOGIN_POST_URL, data=post_data_str, headers=headers)
         return s
 
     def get_credit(self):
