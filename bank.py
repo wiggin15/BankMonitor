@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+
 from collections import OrderedDict
-from assets import stats
-from assets.common import all_memoize_caches
-from config import get_config_value, get_asset_sections, get_config_options
+
 import assets
+from assets import stats
+from assets.common import all_memoize_caches, AssetBase
+from config import get_config_value, get_asset_sections, get_config_options
 
 
 def get_asset(asset_section):
+    # type: (str) -> AssetBase
     class_name = get_config_value(asset_section, "type")
     asset_options = get_config_options(asset_section)
     return getattr(assets, class_name)(asset_section, **asset_options)

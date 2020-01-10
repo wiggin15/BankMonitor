@@ -27,6 +27,7 @@ def wait_until_time(hour, minute):
         sys.stdout.write("Time remaining: ")
         sys.stdout.write(time.strftime('%H:%M', time.gmtime(remaining)))
         sys.stdout.flush()
+        # noinspection PyTypeChecker
         time.sleep(min(60, remaining))
         sys.stdout.write("\r")
         sys.stdout.flush()

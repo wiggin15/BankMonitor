@@ -1,5 +1,7 @@
 import json
+
 import requests
+
 from .common import WorkStockBase, convert_usd_to_ils, print_value
 
 
@@ -9,6 +11,7 @@ class MorganStanleyStockPlanConnect(WorkStockBase):
     SUMMARY_URL = "https://stockplanconnect.morganstanley.com/app-bin/spc/ba/sps/summary?format=json"
 
     def __init__(self, asset_section, tax_percentage=0.25, **asset_options):
+        # type: (str, str, ...) -> None
         super(MorganStanleyStockPlanConnect, self).__init__(asset_section, **asset_options)
         self.__tax_percentage = float(tax_percentage)
         summary_data_str = self._session.get(self.SUMMARY_URL).text
@@ -16,6 +19,7 @@ class MorganStanleyStockPlanConnect(WorkStockBase):
         self.__summary_data = json.loads(summary_data_str)
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         s = requests.Session()
         s.get(self.LOGIN_URL)
         post_data = {"username": username, "password": password}
@@ -23,7 +27,8 @@ class MorganStanleyStockPlanConnect(WorkStockBase):
         assert '"success":true' in result, "Result is {}".format(result)
         return s
 
-    def get_summary_value(self, value_name, print_name):
+    def __get_summary_value(self, value_name, print_name):
+        # type: (str, str) -> float
         value_str_raw = self.__summary_data[value_name]
         value = float(value_str_raw[1:].replace(",", ""))
         print_value(value, "{} original (USD)".format(print_name))
@@ -32,10 +37,13 @@ class MorganStanleyStockPlanConnect(WorkStockBase):
         return value_ils
 
     def _get_exercisable(self):
-        return self.get_summary_value("totalMktvalue", "Exercisable")
+        # type: () -> float
+        return self.__get_summary_value("totalMktvalue", "Exercisable")
 
     def _get_vested(self):
+        # type: () -> float
         return 0
 
     def _get_unvested(self):
-        return self.get_summary_value("totalUnvestedvalue", "Unvested")
+        # type: () -> float
+        return self.__get_summary_value("totalUnvestedvalue", "Unvested")

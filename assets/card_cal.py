@@ -1,12 +1,13 @@
 import re
-import requests
-from .common import CardBase, format_value, print_value
 
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+import requests
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as WebDriverOptions
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from .common import CardBase, format_value, print_value
 
 
 class CardCal(CardBase):
@@ -16,14 +17,17 @@ class CardCal(CardBase):
     CARD_VALUE_RE = """<span id="%s" class="money"><b>(.*?)</b></span>"""
 
     def _wait_for_id(self, html_id):
+        # type: (str) -> None
         indicator = EC.presence_of_element_located((By.ID, html_id))
         WebDriverWait(self.selenium, 10).until(indicator)
 
     def _wait_for_name(self, html_name):
+        # type: (str) -> None
         indicator = EC.presence_of_element_located((By.NAME, html_name))
         WebDriverWait(self.selenium, 10).until(indicator)
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         options = WebDriverOptions()
         options.headless = True
         self.selenium = webdriver.Firefox(options=options)
@@ -48,10 +52,12 @@ class CardCal(CardBase):
         return session
 
     def __get_card_value(self, card_data, card_code, print_name=None):
+        # type: (str, str, str) -> float
         val = re.search(self.CARD_VALUE_RE % (card_code,), card_data).group(1)
         return format_value(val, print_name)
 
     def __get_balance(self, card_code):
+        # type: (str) -> float
         home_data = self._session.get(self.CARD_HOME_URL)
         card_details_queries = re.findall(r"(\?cardUniqueID=\d+)", home_data.text)
         card_datas = [self._session.get(self.CARD_DETAIL_URL + card_details_query)
@@ -59,10 +65,12 @@ class CardCal(CardBase):
         return sum(self.__get_card_value(card_data.text, card_code) for card_data in card_datas)
 
     def _get_credit(self):
+        # type: () -> float
         card_total = self.__get_balance("lblTotalRemainingSum")
         print_value(0 - card_total, "Credit")
         return 0 - card_total
 
     def _get_next(self):
+        # type: () -> float
         card_next = self.__get_balance("lblNextDebitSum")
         return 0 - card_next

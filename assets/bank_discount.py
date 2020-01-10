@@ -1,13 +1,14 @@
-import requests
 from collections import OrderedDict
+
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options as WebDriverOptions
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from . import stats
 from .common import BankBase, print_value
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options as WebDriverOptions
 
 
 # username is in format <id>,<code>
@@ -23,6 +24,7 @@ class BankDiscount(BankBase):
         WebDriverWait(self.selenium, 180).until(indicator)
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         uid, code = username.split(",")
         options = WebDriverOptions()
         options.headless = True
@@ -45,6 +47,7 @@ class BankDiscount(BankBase):
         return session
 
     def get_values(self, stats_dict):
+        # type: (stats.StatsDict) -> OrderedDict[str, float]
         accounts_data = self._session.get(self.ACCOUNTS_JSON_URL).json()
         account_numbers = [account['FormatAccountID'] for account in accounts_data['UserAccountsData']['UserAccounts']]
         bank = 0

@@ -1,7 +1,11 @@
 from __future__ import print_function
+
 import json
-import requests
 from datetime import datetime
+from typing import Dict, List, Any
+
+import requests
+
 from .common import WorkStockBase, get_stock_value, convert_usd_to_ils, print_value
 
 
@@ -11,18 +15,21 @@ class StockEsop(WorkStockBase):
     PLAN_OBJECT_DATA_LENGTH = 49
 
     def __init__(self, asset_section, gain_tax_percentage=0.28, income_tax_percentage=0.62, **asset_options):
+        # type: (str, str, str, ...) -> None
         super(StockEsop, self).__init__(asset_section, **asset_options)
         self.__gain_tax_percentage = float(gain_tax_percentage)
         self.__income_tax_percentage = float(income_tax_percentage)
         self.__plan_data = self.__get_plan_details()
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         s = requests.Session()
         post_data = {"j_username": username, "j_password": password}
         s.post(self.LOGIN_URL, data=post_data)
         return s
 
     def __get_plan_details(self):
+        # type: () -> List[Dict[str, float]]
         # GWT RPC is really bad :(
         # Here are some docs: https://docs.google.com/document/d/1eG0YocsYYbNAtivkLtcaiEE5IOF5u4LUol8-LL0TIKU/edit
 
@@ -71,6 +78,7 @@ class StockEsop(WorkStockBase):
         return self.__parse_plan_details_object(result_json[3:], result_json[2])
 
     def __parse_plan_details_object(self, object_data, string_table):
+        # type: (List[Any], List[str]) -> List[Dict[str, float]]
         assert object_data[0] == 1
         assert string_table[object_data[0] - 1] == "cmr.client.main.models.MainContentData/859749487", \
             "Unknown response object {}".format(string_table[object_data[0] - 1])
@@ -85,6 +93,7 @@ class StockEsop(WorkStockBase):
         return [self.__parse_single_plan_object(x, string_table) for x in array_data]
 
     def __parse_single_plan_object(self, object_data, string_table):
+        # type: (List[Any], List[str]) -> Dict[str, float]
         assert object_data[0] == 5
         assert string_table[object_data[0] - 1] == "cmr.client.main.models.OptionsPlanDetailDataWrapper/457096247", \
             "Unknown plan details object {}".format(string_table[object_data[0] - 1])
@@ -119,15 +128,19 @@ class StockEsop(WorkStockBase):
                 "Unvested": unvested_shares * net_share_value}
 
     def __get_total_value(self, value_name):
+        # type: (str) -> float
         result = sum([x[value_name] for x in self.__plan_data])
         print_value(result, value_name)
         return result
 
     def _get_exercisable(self):
+        # type: () -> float
         return self.__get_total_value("Exercisable")
 
     def _get_vested(self):
+        # type: () -> float
         return self.__get_total_value("Vested")
 
     def _get_unvested(self):
+        # type: () -> float
         return self.__get_total_value("Unvested")
