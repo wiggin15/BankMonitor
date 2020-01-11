@@ -1,5 +1,7 @@
 import json
+
 import requests
+
 from .common import CardBase, format_value
 
 
@@ -10,6 +12,7 @@ class CardIsracard(CardBase):
     CARD_DATA_URL = "https://digital.isracard.co.il/services/ProxyRequestHandler.ashx?reqName=DashboardCharges&format=Json&cardIdx=&returnDataStructureLevel=1&cardIndexes=&accountNumber=&actionCode=0&identityId="
 
     def __init__(self, asset_section, user_id=None, card_suffix=None, **asset_options):
+        # type: (str, str, str, ...) -> None
         self.__user_id = user_id
         self.__card_suffix = card_suffix
         if not self.__user_id or not self.__card_suffix:
@@ -17,6 +20,7 @@ class CardIsracard(CardBase):
         super(CardIsracard, self).__init__(asset_section, user="dummy", **asset_options)
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         headers = {"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}
         s = requests.Session()
         s.get(self.LOGIN_URL)
@@ -45,11 +49,13 @@ class CardIsracard(CardBase):
         s.post(self.LOGIN_POST_URL, data=post_data_str, headers=headers)
         return s
 
-    def get_credit(self):
+    def _get_credit(self):
+        # type: () -> float
         card_data_raw = self._session.get(self.CARD_DATA_URL).text
         card_data = json.loads(card_data_raw)
         upcoming_billing = card_data["DashboardChargesBean"]["inOut"][0]["nextTotalsInOut"][0]["billingSumSekelInOut"]
         return format_value("-" + upcoming_billing, 'Credit')
 
-    def get_next(self):
+    def _get_next(self):
+        # type: () -> float
         return 0

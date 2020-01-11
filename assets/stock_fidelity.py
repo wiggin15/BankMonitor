@@ -1,10 +1,12 @@
 import json
 import re
+
 import requests
-from .common import StockBrokerBase, format_value, HEADERS_USER_AGENT
+
+from .common import WorkStockBase, format_value, HEADERS_USER_AGENT
 
 
-class StockFidelityNetBenefits(StockBrokerBase):
+class StockFidelityNetBenefits(WorkStockBase):
     LOGIN_URL = "https://nb.fidelity.com/public/nb/default/home"
     SENSOR_DATA_URL = "https://nb.fidelity.com/_bm/_data"
     PRE_LOGIN_URL = "https://nb.fidelity.com/public/nb/api/prelogin/default"
@@ -13,6 +15,7 @@ class StockFidelityNetBenefits(StockBrokerBase):
     SUMMARY_URL = "https://netbenefitsww.fidelity.com/mybenefitsww/stockplans/navigation/PlanSummary"
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         s = requests.Session()
         s.get(self.LOGIN_URL, headers=HEADERS_USER_AGENT)
 
@@ -38,13 +41,16 @@ class StockFidelityNetBenefits(StockBrokerBase):
 
         return s
 
-    def get_exercisable(self):
+    def _get_exercisable(self):
+        # type: () -> float
         summary_data_str = self._session.get(self.SUMMARY_URL).text
         match = re.search("""<sup class="dollar">.+?</sup>(.+?)<span class="currency">""", summary_data_str)
         return format_value(match.group(1), "Total")
 
-    def get_vested(self):
+    def _get_vested(self):
+        # type: () -> float
         return 0
 
-    def get_unvested(self):
+    def _get_unvested(self):
+        # type: () -> float
         return 0

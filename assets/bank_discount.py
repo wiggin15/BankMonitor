@@ -1,12 +1,15 @@
-import re
-import requests
 from collections import OrderedDict
-from .common import BankBase, format_value
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+
+import requests
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as WebDriverOptions
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+from . import stats
+from .common import BankBase, print_value, AssetValues
+
 
 # username is in format <id>,<code>
 
@@ -21,6 +24,7 @@ class BankDiscount(BankBase):
         WebDriverWait(self.selenium, 180).until(indicator)
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         uid, code = username.split(",")
         options = WebDriverOptions()
         options.headless = True
@@ -43,13 +47,19 @@ class BankDiscount(BankBase):
         return session
 
     def get_values(self):
+        # type: () -> AssetValues
         accounts_data = self._session.get(self.ACCOUNTS_JSON_URL).json()
         account_numbers = [account['FormatAccountID'] for account in accounts_data['UserAccountsData']['UserAccounts']]
         bank = 0
         stock = 0
         for account_number in account_numbers:
-            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number)).json()['AccountDetails']['AccountBalance']
-            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}).json()['CurrentSecuritiesPortfolio']['PortfolioValue']
-        print("OSH: {:10,.2f}".format(bank))
-        print("NIA: {:10,.2f}".format(stock))
-        return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
+            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number)).json()['AccountDetails'][
+                'AccountBalance']
+            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}).json()[
+                'CurrentSecuritiesPortfolio']['PortfolioValue']
+        print_value(bank, "OSH")
+        print_value(stock, "NIA")
+        return AssetValues(
+            OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)]),
+            stats.StatsMapping([stats.StatBank(bank), stats.StatStockBroker(stock)])
+        )

@@ -3,8 +3,12 @@ import collections
 import json
 import re
 from collections import OrderedDict
+from typing import Dict
+
 import requests
-from .common import BankBase, HEADERS_USER_AGENT, print_value
+
+from . import stats
+from .common import BankBase, HEADERS_USER_AGENT, print_value, AssetValues
 
 
 class BankLeumi(BankBase):
@@ -13,6 +17,7 @@ class BankLeumi(BankBase):
     HOME_URL = "https://hb2.bankleumi.co.il/uniquesig0/ebanking/SO/SPA.aspx#/hpsummary"
 
     def __init__(self, asset_section, print_info=True, **asset_options):
+        # type: (str, bool, ...) -> None
         super(BankLeumi, self).__init__(asset_section, **asset_options)
         home_response = self._session.get(self.HOME_URL, headers=HEADERS_USER_AGENT)
         summary_page = home_response.text
@@ -28,7 +33,7 @@ class BankLeumi(BankBase):
         private_data = dict([(key, json.loads(value)) for key, value in private_data.items()])
         session_id = private_data['SO_Signon']['SessionID']
 
-        self.__total_values = collections.defaultdict(int)
+        self.__total_values = collections.defaultdict(float)
 
         for account_item in private_data['SHEMESHPREMIUM_AccountsItems_hpsummary']['AccountsItems']:
             req_obj = {
@@ -69,6 +74,7 @@ class BankLeumi(BankBase):
                 self.__total_values[account_type_name] = self.__total_values[account_type_name] + account_type_total
 
     def _establish_session(self, username, password):
+        # type: (str, str) -> requests.Session
         s = requests.Session()
         s.get(self.LOGIN_URL, headers=HEADERS_USER_AGENT)
         post_data = {'system': 'test', 'uid': username, 'password': password, 'command': 'login'}
@@ -76,10 +82,15 @@ class BankLeumi(BankBase):
         return s
 
     def get_values(self):
+        # type: () -> AssetValues
         checking = self.__total_values['Checking']
         holdings = self.__total_values['Holdings']
         deposit = self.__total_values['Deposit']
-        return OrderedDict([("Checking", checking), ("Holdings", holdings), ("Deposit", deposit)])
+        return AssetValues(
+            OrderedDict([("Checking", checking), ("Holdings", holdings), ("Deposit", deposit)]),
+            stats.StatsMapping([stats.StatBank(checking + deposit), stats.StatStockBroker(holdings)])
+        )
 
     def get_total_values(self):
+        # type: () -> Dict[str, float]
         return self.__total_values
