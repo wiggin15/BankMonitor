@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import json
+import typing
 from abc import ABCMeta, abstractmethod, ABC
 from collections import OrderedDict
-from typing import cast
 
 import requests
 
@@ -71,12 +71,18 @@ def get_stock_value(stock_name):
     return float(daily_stats[max(daily_stats.keys())]["1. open"])
 
 
+AssetValues = typing.NamedTuple(
+    'AssetValues',
+    [('values', typing.OrderedDict[str, float]), ('stats', stats.StatsMapping)]
+)
+
+
 class AssetBase(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         raise NotImplementedError()
 
 
@@ -111,12 +117,14 @@ class CardBase(AuthenticatedAssetBase):
         # type: () -> float
         raise NotImplementedError()
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         credit_value = self._get_credit()
         card_next = self._get_next()
-        cast(stats.StatCard, stats_dict[stats.StatType.STAT_CARD]).add(credit_value, card_next)
-        return OrderedDict([("Credit", credit_value)])
+        return AssetValues(
+            OrderedDict([("Credit", credit_value)]),
+            stats.StatsMapping([stats.StatCard(credit_value, card_next)])
+        )
 
 
 class WorkStockBase(AuthenticatedAssetBase):
@@ -135,13 +143,15 @@ class WorkStockBase(AuthenticatedAssetBase):
         # type: () -> float
         raise NotImplementedError()
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         exercisable = self._get_exercisable()
         vested = self._get_vested()
         unvested = self._get_unvested()
-        cast(stats.StatWorkStock, stats_dict[stats.StatType.STAT_WORK_STOCK]).add(exercisable, vested, unvested)
-        return OrderedDict([("Exercisable", exercisable)])
+        return AssetValues(
+            OrderedDict([("Exercisable", exercisable)]),
+            stats.StatsMapping([stats.StatWorkStock(exercisable, vested, unvested)])
+        )
 
 
 class CommodityBase(AssetBase):
@@ -155,8 +165,10 @@ class CommodityBase(AssetBase):
         # type: () -> float
         raise NotImplementedError()
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         value = self._get_value()
-        stats_dict[stats.StatType.STAT_NONE].add(value)
-        return OrderedDict([("Value", value)])
+        return AssetValues(
+            OrderedDict([("Value", value)]),
+            stats.StatsMapping([stats.StatNone(value)])
+        )

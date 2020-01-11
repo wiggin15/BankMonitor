@@ -4,7 +4,7 @@ from collections import OrderedDict
 import requests
 
 from . import stats
-from .common import BankBase, format_value
+from .common import BankBase, format_value, AssetValues
 
 
 class BankOtsar(BankBase):
@@ -33,10 +33,11 @@ class BankOtsar(BankBase):
         NIA = NIA[-1]
         return format_value(NIA, 'NIA')
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         bank = self._get_values_from_main_page()
         stock = self._get_stock_value()
-        stats_dict[stats.StatType.STAT_BANK].add(bank)
-        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(stock)
-        return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
+        return AssetValues(
+            OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)]),
+            stats.StatsMapping([stats.StatBank(bank), stats.StatStockBroker(stock)])
+        )

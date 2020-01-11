@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from . import stats
-from .common import BankBase, print_value
+from .common import BankBase, print_value, AssetValues
 
 
 # username is in format <id>,<code>
@@ -46,8 +46,8 @@ class BankDiscount(BankBase):
 
         return session
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         accounts_data = self._session.get(self.ACCOUNTS_JSON_URL).json()
         account_numbers = [account['FormatAccountID'] for account in accounts_data['UserAccountsData']['UserAccounts']]
         bank = 0
@@ -59,6 +59,7 @@ class BankDiscount(BankBase):
                 'CurrentSecuritiesPortfolio']['PortfolioValue']
         print_value(bank, "OSH")
         print_value(stock, "NIA")
-        stats_dict[stats.StatType.STAT_BANK].add(bank)
-        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(stock)
-        return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
+        return AssetValues(
+            OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)]),
+            stats.StatsMapping([stats.StatBank(bank), stats.StatStockBroker(stock)])
+        )

@@ -22,16 +22,17 @@ def main():
     for cache in all_memoize_caches:
         cache.clear()
     all_values = OrderedDict()
-    all_stats = stats.StatsDict()
+    all_stats = stats.StatsMapping()
 
     asset_sections = get_asset_sections()
     for asset_section in asset_sections:
         print("{}:".format(asset_section))
         asset = get_asset(asset_section)
-        values = asset.get_values(all_stats)
+        values = asset.get_values()
         values_with_prefix = OrderedDict(
-            [("{} - {}".format(asset_section, key), value) for key, value in values.items()])
+            [("{} - {}".format(asset_section, key), value) for key, value in values.values.items()])
         all_values.update(values_with_prefix)
+        all_stats.merge(values.stats)
 
         print()
 

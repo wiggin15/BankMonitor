@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from . import stats
-from .common import BankBase, format_value, print_value
+from .common import BankBase, format_value, print_value, AssetValues
 
 headers = {"User-Agent": "Mozilla/5.0"}
 
@@ -84,8 +84,8 @@ class BankBeinleumi(BankBase):
         NIA = match_obj.group(1)
         return format_value(NIA)
 
-    def get_values(self, stats_dict):
-        # type: (stats.StatsDict) -> OrderedDict[str, float]
+    def get_values(self):
+        # type: () -> AssetValues
         bank = 0
         stock = 0
         for account in self._get_accounts():
@@ -94,6 +94,7 @@ class BankBeinleumi(BankBase):
             stock += self._get_stock_value()
         print_value(bank, "OSH")
         print_value(stock, "NIA")
-        stats_dict[stats.StatType.STAT_BANK].add(bank)
-        stats_dict[stats.StatType.STAT_STOCK_BROKER].add(stock)
-        return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
+        return AssetValues(
+            OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)]),
+            stats.StatsMapping([stats.StatBank(bank), stats.StatStockBroker(stock)])
+        )
