@@ -31,10 +31,13 @@ class CardCal(CardBase):
             self.selenium.get(self.CARD_LOGIN_URL)
             self._wait_for_id("calconnectIframe")
             self.selenium.switch_to.frame(self.selenium.find_element_by_id("calconnectIframe"))
-            self._wait_for_name("userName")
-            self.selenium.find_element_by_name("userName").send_keys(username)
-            self.selenium.find_element_by_name("userPassword").send_keys(password)
-            self.selenium.find_element_by_css_selector(".form-footer .btn").submit()
+            self._wait_for_id("mat-input-0")
+            # switch to login by username/password
+            self.selenium.find_element_by_css_selector('a.mat-tab-link:nth-child(2)').click()
+            self._wait_for_id("mat-input-2")
+            self.selenium.find_element_by_id("mat-input-2").send_keys(username)
+            self.selenium.find_element_by_id("mat-input-3").send_keys(password)
+            self.selenium.find_element_by_css_selector('form button[type="submit"]').submit()
             # wait until submission actually goes through and we get a new page
             self.selenium.switch_to.default_content()
             self._wait_for_id("tabsContainer")
