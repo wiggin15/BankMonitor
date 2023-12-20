@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 from __future__ import print_function
 from collections import OrderedDict
 from assets.common import BankBase, CardBase, StockBrokerBase, all_memoize_caches

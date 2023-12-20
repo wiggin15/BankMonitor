@@ -1,10 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-try:
-    from ConfigParser import ConfigParser
-except ImportError:  # Python 3.x
-    from configparser import ConfigParser
+from configparser import ConfigParser
 
 CONFIG_FILE_PATH = "config.ini"
 
