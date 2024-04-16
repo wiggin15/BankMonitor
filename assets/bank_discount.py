@@ -1,7 +1,7 @@
 import re
 import requests
 from collections import OrderedDict
-from .common import BankBase, format_value
+from .common import BankBase, format_value, HEADERS_USER_AGENT
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,8 +9,6 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as WebDriverOptions
 
 # username is in format <id>,<code>
-
-headers = {"User-Agent": "Mozilla/5.0 ()"}
 
 class BankDiscount(BankBase):
     LOGIN_URL = "https://start.telebank.co.il/login/"
@@ -45,18 +43,20 @@ class BankDiscount(BankBase):
         finally:
             self.selenium.quit()
 
+        session.headers = HEADERS_USER_AGENT
+
         return session
 
     def get_values(self):
-        accounts_data = self._session.get(self.ACCOUNTS_JSON_URL, headers=headers).json()
+        accounts_data = self._session.get(self.ACCOUNTS_JSON_URL).json()
         account_numbers = [account['FormatAccountID'] for account in accounts_data['UserAccountsData']['UserAccounts']]
         bank = 0
         stock = 0
         credit = 0
         for account_number in account_numbers:
-            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number), headers=headers).json()['AccountDetails']['AccountBalance']
-            credit += self._session.get(self.CREDIT_JSON_URL.format(account_number), headers=headers).json()['TotalDebitTransactions']['TotalsBlock']['NISExternalCardsEstimatedTotalDebit']
-            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}, headers=headers).json()['CurrentSecuritiesPortfolio']['PortfolioValue']
+            bank += self._session.get(self.BALANCE_JSON_URL.format(account_number)).json()['AccountDetails']['AccountBalance']
+            credit += self._session.get(self.CREDIT_JSON_URL.format(account_number)).json()['TotalDebitTransactions']['TotalsBlock']['NISExternalCardsEstimatedTotalDebit']
+            stock += self._session.post(self.STOCK_JSON_URL, json={"AccountNumber": account_number}).json()['CurrentSecuritiesPortfolio']['PortfolioValue']
         print("OSH: {:10,.2f}".format(bank))
         print("NIA: {:10,.2f}".format(stock))
         return OrderedDict([("Bank", bank), ("Deposit", 0), ("Stock", stock), ("Car", 0)])
