@@ -50,6 +50,3 @@ class CardIsracard(CardBase):
         card_data = json.loads(card_data_raw)
         upcoming_billing = card_data["DashboardChargesBean"]["inOut"][0]["nextTotalsInOut"][0]["billingSumSekelInOut"]
         return format_value("-" + upcoming_billing, 'Credit')
-
-    def get_next(self):
-        return 0

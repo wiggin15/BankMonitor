@@ -18,7 +18,6 @@ def main():
 
     bank_total = 0
     card_total = 0
-    card_next = 0
     stock_exercisable = 0
     stock_vested = 0
     stock_unvested = 0
@@ -34,7 +33,6 @@ def main():
             credit_value = asset.get_credit()
             values = OrderedDict([("Credit", credit_value)])
             card_total += abs(credit_value)
-            card_next += asset.get_next()
         elif isinstance(asset, StockBrokerBase):
             exercisable_value = asset.get_exercisable()
             values = OrderedDict([("Exercisable", exercisable_value)])
@@ -52,7 +50,7 @@ def main():
 
     print("Total all banks: {:10,.2f}".format(bank_total))
     print()
-    print("All cards: {:,.2f} (next: {:,.2f})".format(card_total, card_next))
+    print("All cards: {:,.2f}".format(card_total))
     print()
     if stock_exercisable != 0 or stock_vested != 0 or stock_unvested != 0:
         print("All stock brokers: {:,.2f} (vested: {:,.2f}, unvested {:,.2f})"

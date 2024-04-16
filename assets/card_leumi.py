@@ -16,6 +16,3 @@ class CardLeumi(CardBase):
         credit = self.__bank_instance.get_total_values()['Creditcard']
         print_value(credit, 'Credit')
         return credit
-
-    def get_next(self):
-        return 0

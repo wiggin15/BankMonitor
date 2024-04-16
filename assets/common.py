@@ -87,10 +87,6 @@ class CardBase(AssetBase):
     def get_credit(self):
         raise NotImplementedError()
 
-    @abstractmethod
-    def get_next(self):
-        raise NotImplementedError()
-
 
 class StockBrokerBase(AssetBase):
     @abstractmethod
